@@ -76,7 +76,7 @@ async function run() {
     return;
   }
 
-  const client = new github.GitHub(token);
+  const client = new github.getOctokit(token);
 
   const config = await readConfig(client, configPath);
   if (!config) {
