@@ -47,7 +47,7 @@ async function isMemberOfOrg(client, user, org) {
     org = org.slice(1);
   }
 
-  const { data: orgs } = await client.orgs.listForUser({ username, per_page: 100 });
+  const { data: orgs } = await client.orgs.listForUser({ user, per_page: 100 });
   return orgs.some((name) => name === org);
 }
 
