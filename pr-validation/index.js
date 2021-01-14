@@ -150,12 +150,23 @@ async function run() {
       body: comment
     });
 
+    let setLabels = false;
+
+    if (approve_label && labels.includes(approve_label)) {
+      labels = labels.filter(label => label !== approve_label);
+      setLabels = true;
+    }
     if (problem_label && !labels.includes(problem_label)) {
-      client.issues.addLabels({
+      labels.push(problem_label);
+      setLabels = true;
+    }
+
+    if (setLabels) {
+      client.issues.setLabels({
         owner: owner,
         repo: repo,
         issue_number: number,
-        labels: [problem_label]
+        labels: labels
       });
     }
 
