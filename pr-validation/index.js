@@ -24,8 +24,10 @@ async function fetchContent(client, path) {
 
 async function readConfig(client, path) {
   const content = await fetchContent(client, path);
+  console.log(content);
 
   const config = yaml.load(content);
+  console.log(config);
 
   return config;
 }
