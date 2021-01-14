@@ -1,14 +1,14 @@
-name: 'PR Validator'
-description: 'Runs some checks against incoming PRs'
+name: 'Issue Validator'
+description: 'Runs some checks against incoming issues'
 author: 'foosel'
 inputs:
   repo-token:
     description: 'The GITHUB_TOKEN secret'
   configuration-path:
-    description: 'The path for the pr-validation config'
-    default: '.github/pr-validation.yml'
+    description: 'The path for the issue-validation config'
+    default: '.github/issue-validation.yml'
     required: false
 
 runs:
   using: 'node12'
-  main: 'index.js'
+  main: 'dist/index.js'
