@@ -31,8 +31,8 @@ async function readConfig(client, path) {
 }
 
 function checkPr(config, pr, allowed_targets, forbidden_sources) {
-  const source = context.payload.pull_request.head.ref;
-  const target = context.payload.pull_request.base.ref;
+  const source = pr.head.ref;
+  const target = pr.base.ref;
   console.log("PR source is " + source);
   console.log("PR target is " + target);
 
