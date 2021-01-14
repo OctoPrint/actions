@@ -83,6 +83,7 @@ async function run() {
     console.log("Could not get configuration from repository, existing");
     return;
   }
+  console.log(config);
   
   // Get current PR data (the data in the context might be outdated)
   const { data: pr } = await client.pulls.get({
