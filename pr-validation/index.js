@@ -128,7 +128,7 @@ async function run() {
   console.log("Allowed targets: " + allowed_targets.join(", "));
   console.log("Forbidden sources: " + forbidden_sources.join(", "));
 
-  const problems = checkPr(config, pr, allowed_targets, forbidden_sources);
+  const problems = checkPr(pr, allowed_targets, forbidden_sources);
 
   if (problems.length) {
     // Problems were detected, post comment and label accordingly
