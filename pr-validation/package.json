@@ -1,0 +1,25 @@
+{
+  "name": "octoprint-pr-validation-action",
+  "version": "1.0.0",
+  "description": "This action runs some checks against incoming PRs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoPrint/actions.git"
+  },
+  "keywords": [],
+  "author": "Gina Häußge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OctoPrint/actions/issues"
+  },
+  "homepage": "https://github.com/OctoPrint/actions/tree/master/pr-validation#readme",
+  "dependencies": {
+    "@actions/core": "^1.1.0",
+    "@actions/github": "^1.1.0",
+    "js-yaml": "^4.0.0"
+  }
+}
