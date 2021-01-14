@@ -122,7 +122,7 @@ async function run() {
       }
     }
 
-    let problems = checkPr(config, pr, allowed_targets, forbidden_sources);
+    const problems = checkPr(config, pr, allowed_targets, forbidden_sources);
 
     if (problems.length) {
       // Problems were detected, post comment and label accordingly
