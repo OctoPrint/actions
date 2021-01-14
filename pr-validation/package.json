@@ -4,7 +4,8 @@
   "description": "This action runs some checks against incoming PRs.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx ncc build src/index.js -m -o dist"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,9 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
-    "@octokit/core": "^3.2.1",
     "js-yaml": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.27.0"
   }
 }
