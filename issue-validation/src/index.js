@@ -62,7 +62,7 @@ async function isMemberOfTeam(client, user, team) {
   let org;
   [org, team] = team.split("/", 1);
 
-  const query = `query($cursor: String, $org, String!, $userLogins: [String!], $username: String!) {
+  const query = `query($cursor: String, $org: String!, $userLogins: [String!], $username: String!) {
     user(login: $username) {
       id
     }
@@ -83,17 +83,22 @@ async function isMemberOfTeam(client, user, team) {
   let teams = [];
   let cursor = null;
 
-  do {
-    data = await client.graphql(query, {
-      "cursor": cursor,
-      "org": org,
-      "userLogins": [user],
-      "username": user
-    });
-    
-    teams = teams.concat(data.organization.teams.nodes.map((val) => val.name));
-    cursor = data.organization.teams.pageInfo.endCursor;
-  } while (!teams.includes(team) && data.organization.teams.pageInfo.hasNextPage);
+  try {
+    do {
+      data = await client.graphql(query, {
+        "cursor": cursor,
+        "org": org,
+        "userLogins": [user],
+        "username": user
+      });
+      
+      teams = teams.concat(data.organization.teams.nodes.map((val) => val.name));
+      cursor = data.organization.teams.pageInfo.endCursor;
+    } while (!teams.includes(team) && data.organization.teams.pageInfo.hasNextPage);
+  } catch (error) {
+    console.log(error);
+    core.setFailed(error.message);
+  }
 
   return teams.includes(team);
 }
