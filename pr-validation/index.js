@@ -90,7 +90,6 @@ async function run() {
     repo: repo,
     pull_number: number
   });
-  console.log(pr);
 
   const problem_label = config.problem_label;
   const approve_label = config.approve_label;
