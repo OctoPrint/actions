@@ -24,10 +24,8 @@ async function fetchContent(client, path) {
 
 async function readConfig(client, path) {
   const content = await fetchContent(client, path);
-  console.log(content);
 
   const config = yaml.load(content);
-  console.log(config);
 
   return config;
 }
@@ -85,7 +83,6 @@ async function run() {
     console.log("Could not get configuration from repository, existing");
     return;
   }
-  console.log(config);
   
   // Get current PR data (the data in the context might be outdated)
   const { data: pr } = await client.pulls.get({
@@ -93,6 +90,7 @@ async function run() {
     repo: repo,
     pull_number: number
   });
+  console.log(pr);
 
   const problem_label = config.problem_label;
   const approve_label = config.approve_label;
