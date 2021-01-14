@@ -30,7 +30,7 @@ async function readConfig(client, path) {
   return config;
 }
 
-function checkPr(config, pr, allowed_targets, forbidden_sources) {
+function checkPr(pr, allowed_targets, forbidden_sources) {
   const source = pr.head.ref;
   const target = pr.base.ref;
   console.log("PR source is " + source);
@@ -96,6 +96,9 @@ async function run() {
   let allowed_targets = config.allowed_targets;
   let forbidden_sources = config.forbidden_sources;
 
+  console.log("Allowed targets: " + allowed_targets.join(", "));
+  console.log("Forbidden sources: " + forbidden_sources.join(", "));
+
   let labels = [];
   pr.labels.forEach(label => { labels.push(label.name) });
   console.log("PR labels are " + labels.join(", "));
@@ -120,6 +123,9 @@ async function run() {
       }
     }
   }
+
+  console.log("Allowed targets: " + allowed_targets.join(", "));
+  console.log("Forbidden sources: " + forbidden_sources.join(", "));
 
   const problems = checkPr(config, pr, allowed_targets, forbidden_sources);
 
