@@ -99,9 +99,6 @@ async function run() {
     let allowed_targets = config.allowed_targets;
     let forbidden_sources = config.forbidden_sources;
 
-    console.log("Allowed targets: " + allowed_targets.join(", "));
-    console.log("Forbidden sources: " + forbidden_sources.join(", "));
-
     let labels = [];
     pr.labels.forEach(label => { labels.push(label.name) });
     console.log("PR labels are " + labels.join(", "));
