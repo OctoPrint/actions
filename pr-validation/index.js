@@ -178,7 +178,7 @@ async function run() {
         owner: owner,
         repo: repo,
         issue_number: number,
-        label: labels
+        labels: labels
       });
     }
   }
