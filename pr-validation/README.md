@@ -25,7 +25,7 @@ The path to the yml configuration file that configures the branch restrictions.
 name: "PR validator"
 on:
   pull_request_target:
-    types: []
+    types: ["opened", "synchronize", "reopened", "edited", "labeled", "unlabeled"]
 
 jobs:
   validate:
