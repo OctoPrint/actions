@@ -12,7 +12,7 @@ function getPrNumber() {
 }
 
 async function fetchContent(client, path) {
-  const response = await client.repos.getContents({
+  const response = await client.repos.getContent({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     path: path,
