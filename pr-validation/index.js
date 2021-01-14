@@ -80,7 +80,7 @@ async function run() {
 
   const client = new github.GitHub(token);
 
-  const config = readConfig(client, configPath);
+  const config = await readConfig(client, configPath);
   if (!config) {
     console.log("Could not get configuration from repository, existing");
     return;
