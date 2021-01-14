@@ -1,0 +1,14 @@
+name: 'PR Validator'
+description: 'Runs some checks against incoming PRs'
+author: 'foosel'
+inputs:
+  repo-token:
+    description: 'The GITHUB_TOKEN secret'
+  configuration-path:
+    description: 'The path for the pr-validation config'
+    default: '.github/pr-validation.yml'
+    required: false
+
+runs:
+  using: 'node12'
+  main: 'index.js'
