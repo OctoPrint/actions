@@ -47,8 +47,9 @@ async function isMemberOfOrg(client, user, org) {
     org = org.slice(1);
   }
 
-  const { data: orgs } = await client.orgs.listForUser({ user, per_page: 100 });
-  return orgs.some((name) => name === org);
+  let member = await client.orgs.checkPublicMembershipForUser({ org, user });
+  console.log("is member? " + member);
+  return member;
 }
 
 async function isMemberOfTeam(client, user, team) {
