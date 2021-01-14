@@ -64,120 +64,116 @@ function checkPr(config, pr, allowed_targets, forbidden_sources) {
 }
 
 async function run() {
-  try {
-    const token = core.getInput("repo-token", { required: true });
-    const configPath = core.getInput("configuration-path", { required: true });
+  const token = core.getInput("repo-token", { required: true });
+  const configPath = core.getInput("configuration-path", { required: true });
 
-    const owner = github.context.repo.owner;
-    const repo = github.context.repo.repo;
+  const owner = github.context.repo.owner;
+  const repo = github.context.repo.repo;
 
-    const number = getPrNumber();
-    if (!number) {
-      console.log("Could not get pull request number from context, exiting");
-      return;
-    }
+  const number = getPrNumber();
+  if (!number) {
+    console.log("Could not get pull request number from context, exiting");
+    return;
+  }
 
-    const client = new github.GitHub(token);
+  const client = new github.GitHub(token);
 
-    const config = readConfig(client, configPath);
-    if (!config) {
-      console.log("Could not get configuration from repository, existing");
-      return;
-    }
-    
-    // Get current PR data (the data in the context might be outdated)
-    const { data: pr } = await client.pulls.get({
-      owner: owner,
-      repo: repo,
-      pull_number: number
-    });
+  const config = readConfig(client, configPath);
+  if (!config) {
+    console.log("Could not get configuration from repository, existing");
+    return;
+  }
+  
+  // Get current PR data (the data in the context might be outdated)
+  const { data: pr } = await client.pulls.get({
+    owner: owner,
+    repo: repo,
+    pull_number: number
+  });
 
-    const problem_label = config.problem_label;
-    const approve_label = config.approve_label;
-    let allowed_targets = config.allowed_targets;
-    let forbidden_sources = config.forbidden_sources;
+  const problem_label = config.problem_label;
+  const approve_label = config.approve_label;
+  let allowed_targets = config.allowed_targets;
+  let forbidden_sources = config.forbidden_sources;
 
-    let labels = [];
-    pr.labels.forEach(label => { labels.push(label.name) });
-    console.log("PR labels are " + labels.join(", "));
+  let labels = [];
+  pr.labels.forEach(label => { labels.push(label.name) });
+  console.log("PR labels are " + labels.join(", "));
 
-    if (config.labels) {
-      for (const label in config.labels) {
-        if (labels.includes(label)) {
-          const c = config.labels[label];
+  if (config.labels) {
+    for (const label in config.labels) {
+      if (labels.includes(label)) {
+        const c = config.labels[label];
 
-          if (c.allowed_targets) {
-            allowed_targets = c.allowed_targets;
-          }
-          if (c.forbidden_sources) {
-            forbidden_sources = c.forbidden_sources;
-          }
-          if (c.additional_allowed_targets) {
-            allowed_targets = allowed_targets.concat(c.additional_allowed_targets);
-          }
-          if (c.additional_forbidden_sources) {
-            forbidden_sources = forbidden_sources.concat(c.additional_forbidden_sources);
-          }
+        if (c.allowed_targets) {
+          allowed_targets = c.allowed_targets;
+        }
+        if (c.forbidden_sources) {
+          forbidden_sources = c.forbidden_sources;
+        }
+        if (c.additional_allowed_targets) {
+          allowed_targets = allowed_targets.concat(c.additional_allowed_targets);
+        }
+        if (c.additional_forbidden_sources) {
+          forbidden_sources = forbidden_sources.concat(c.additional_forbidden_sources);
         }
       }
     }
+  }
 
-    const problems = checkPr(config, pr, allowed_targets, forbidden_sources);
+  const problems = checkPr(config, pr, allowed_targets, forbidden_sources);
 
-    if (problems.length) {
-      // Problems were detected, post comment and label accordingly
-      let comment = "**Automatic PR Validation failed**\n\n"
-                  + "There were one or more problems detected with this PR:\n\n";
+  if (problems.length) {
+    // Problems were detected, post comment and label accordingly
+    let comment = "**Automatic PR Validation failed**\n\n"
+                + "There were one or more problems detected with this PR:\n\n";
 
-      problems.forEach(problem => {
-        comment += "  * " + problem + "\n";
-      });
+    problems.forEach(problem => {
+      comment += "  * " + problem + "\n";
+    });
 
-      comment += "\n\nPlease take a look at the "
-               + "Contribution Guidelines of this repository "
-               + "and make sure that the PR follows them. Thank you!\n\n"
-               + "*I'm just a bot 🤖 that does automatic checks, a human will intervene if I've made a mistake.*";
+    comment += "\n\nPlease take a look at the "
+              + "Contribution Guidelines of this repository "
+              + "and make sure that the PR follows them. Thank you!\n\n"
+              + "*I'm just a bot 🤖 that does automatic checks, a human will intervene if I've made a mistake.*";
 
-      client.issues.createComment({
+    client.issues.createComment({
+      owner: owner,
+      repo: repo,
+      issue_number: number,
+      body: comment
+    });
+
+    if (problem_label && !labels.includes(problem_label)) {
+      client.issues.addLabels({
         owner: owner,
         repo: repo,
         issue_number: number,
-        body: comment
+        labels: [problem_label]
       });
-
-      if (problem_label && !labels.includes(problem_label)) {
-        client.issues.addLabels({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          labels: [problem_label]
-        });
-      }
-
-      core.setFailed("This PR has not passed validation");
-    } else {
-      let setLabels = false;
-
-      if (problem_label && labels.includes(problem_label)) {
-        labels = labels.filter(label => label !== problem_label);
-        setLabels = true;
-      }
-      if (approve_label && !labels.includes(approve_label)) {
-        labels.push(approve_label);
-        setLabels = true;
-      }
-
-      if (setLabels) {
-        client.issues.setLabels({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          label: labels
-        });
-      }
     }
-  } catch (error) {
-    core.setFailed(error.message);
+
+    core.setFailed("This PR has not passed validation");
+  } else {
+    let setLabels = false;
+
+    if (problem_label && labels.includes(problem_label)) {
+      labels = labels.filter(label => label !== problem_label);
+      setLabels = true;
+    }
+    if (approve_label && !labels.includes(approve_label)) {
+      labels.push(approve_label);
+      setLabels = true;
+    }
+
+    if (setLabels) {
+      client.issues.setLabels({
+        owner: owner,
+        repo: repo,
+        issue_number: number,
+        label: labels
+      });
+    }
   }
 }
 
