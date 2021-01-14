@@ -33,8 +33,8 @@ async function readConfig(client, path) {
 function checkPr(config, pr, allowed_targets, forbidden_sources) {
   const source = context.payload.pull_request.head.ref;
   const target = context.payload.pull_request.base.ref;
-  core.info("PR source is " + source);
-  core.info("PR target is " + target);
+  console.log("PR source is " + source);
+  console.log("PR target is " + target);
 
   let problems = [];
 
@@ -99,7 +99,7 @@ async function run() {
 
     let labels = [];
     pr.labels.forEach(label => { labels.push(label.name) });
-    core.info("PR labels are " + labels.join(", "));
+    console.log("PR labels are " + labels.join(", "));
 
     if (config.labels) {
       for (const label in config.labels) {
