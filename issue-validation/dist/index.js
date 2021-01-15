@@ -10091,7 +10091,7 @@ async function validate_issue(client, config) {
         }
       }
 
-      core.setFailed("This issue has not passed validation");
+      core.info("This issue has not passed validation");
     } else {
       // mark as approved
       core.debug("Issue passed validation");
