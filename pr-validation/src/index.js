@@ -15,8 +15,7 @@ async function fetchContent(client, path) {
   const response = await client.repos.getContent({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    path: path,
-    ref: github.context.sha
+    path: path
   });
 
   return Buffer.from(response.data.content, response.data.encoding).toString();
@@ -79,7 +78,7 @@ async function run() {
       return;
     }
 
-    const client = new github.getOctokit(token);
+    const client = github.getOctokit(token);
 
     const config = await readConfig(client, configPath);
     if (!config) {
