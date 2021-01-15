@@ -10062,11 +10062,16 @@ async function validate_issue(client, config) {
       return;
     }
 
+    const problem_label = config.problem_label;
+    const approve_label = config.approve_label;
     if (!checkIssue(issue, config)) {
       // something's missing here, label & comment accordingly
-      const problem_label = config.problem_label;
+      core.debug("Issue didn't pass validation");
+
       if (problem_label && !labels.includes(problem_label)) {
-        client.issues.addLabels({
+        core.debug("Adding problem_label: " + problem_label);
+
+        await client.issues.addLabels({
           owner: owner,
           repo: repo,
           issue_number: number,
@@ -10074,6 +10079,8 @@ async function validate_issue(client, config) {
         });
 
         if (config.validation_comment) {
+          core.debug("Adding comment");
+
           client.issues.createComment({
             owner: owner,
             repo: repo,
@@ -10086,12 +10093,25 @@ async function validate_issue(client, config) {
       core.setFailed("This issue has not passed validation");
     } else {
       // mark as approved
-      if (config.problem_label) {
-        client.issues.removeLabel({
+      core.debug("Issue passed validation");
+
+      let setLabels = false;
+
+      if (problem_label && labels.includes(problem_label)) {
+        labels = labels.filter(label => label !== problem_label);
+        setLabels = true;
+      }
+      if (approve_label && !labels.includes(approve_label)) {
+        labels.push(approve_label);
+        setLabels = true;
+      }
+
+      if (setLabels) {
+        client.issues.setLabels({
           owner: owner,
           repo: repo,
           issue_number: number,
-          label: config.problem_label
+          labels: labels
         });
       }
     }
