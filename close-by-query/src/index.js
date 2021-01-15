@@ -8,6 +8,8 @@ async function search(client, query, per_page) {
   let issues = [];
   let result;
 
+  core.info("Running query: " + query);
+
   try {
     do {
       result = await client.search.issuesAndPullRequests({
@@ -35,9 +37,9 @@ async function cleanup_issues(client, query, comment, dryrun) {
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
 
-    core.info("Running query: " + query);
+    const q = `repo:${owner}/${repo} ` + query;
 
-    const issues = await search(client, query);
+    const issues = await search(client, q);
 
     core.info("Found " + issues.length + " issues to close");
 
