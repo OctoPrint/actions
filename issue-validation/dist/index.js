@@ -9934,6 +9934,7 @@ async function matchesUser(client, user, check) {
       return await isMemberOfOrg(client, user, check);
     }
   } else {
+    core.debug("Checking user " + user + " against " + check);
     return user === check;
   }
 }
@@ -9942,6 +9943,7 @@ async function isMemberOfOrg(client, user, org) {
   if (org.startsWith("@")) {
     org = org.slice(1);
   }
+  core.debug("Checking membership of " + user + " in org " + org);
 
   let member = await client.orgs.checkPublicMembershipForUser({ 
     "org": org, 
@@ -9954,6 +9956,8 @@ async function isMemberOfTeam(client, user, team) {
   if (!team.includes("/")) {
     return false;
   }
+  core.debug("Checking membership of user " + user + " in org team " + team);
+
   if (team.startsWith("@")) {
     team = team.slice(1);
   }
@@ -9991,7 +9995,7 @@ async function isMemberOfTeam(client, user, team) {
         "username": user
       });
       
-      teams = teams.concat(data.organization.teams.nodes.map((val) => val.name));
+      teams = teams.concat(data.organization.teams.nodes.map((val) => val.name.toLowerCase()));
       cursor = data.organization.teams.pageInfo.endCursor;
     } while (!teams.includes(team) && data.organization.teams.pageInfo.hasNextPage);
   } catch (error) {
@@ -10003,17 +10007,26 @@ async function isMemberOfTeam(client, user, team) {
 }
 
 function isIgnored(client, issue, config) {
-  const labels = issue.labels.map((val) => val.name);
-  const title = issue.title;
-  const author = issue.user.login;
+  const labels = issue.labels.map((val) => val.name.toLowerCase());
+  const title = issue.title.toLowerCase();
+  const author = issue.user.login.toLowerCase();
 
-  const ignored_labels = config.ignored_labels || [];
-  const ignored_titles = config.ignored_titles || [];
-  const ignored_authors = config.ignored_authors || [];
+  const ignored_labels = (config.ignored_labels || []).map((val) => val.toLowerCase());
+  const ignored_titles = (config.ignored_titles || []).map((val) => val.toLowerCase());
+  const ignored_authors = (config.ignored_authors || []).map((val) => val.toLowerCase());
 
-  return ignored_labels.some((l) => labels.includes(l))
-      || ignored_titles.some((t) => title.includes(t))
-      || ignored_authors.some((a) => matchesUser(client, author, a));
+  if (ignored_labels.some((l) => labels.includes(l))) {
+    core.debug("Issue is ignored due to labels: " + labels.join(",") + " vs " + ignored_labels.join(","));
+    return true;
+  } else if (ignored_titles.some((t) => title.includes(t))) {
+    core.debug("Issue is ignored due to title: '" + title + "' vs " + ignored_titles.join(","));
+    return true;
+  } else if (ignored_authors.some((a) => matchesUser(client, author, a))) {
+    core.debug("Issue is ignored due to author: '" + author + "' vs " + ignored_authors.join(","));
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function checkIssue(issue, config) {
