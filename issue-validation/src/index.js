@@ -30,12 +30,12 @@ async function readConfig(client, path) {
   return config;
 }
 
-async function matchesUser(client, user, check) {
+function matchesUser(client, user, check) {
   if (check.startsWith("@")) {
     if (check.includes("/")) {
-      return await isMemberOfTeam(client, user, check);
+      return isMemberOfTeam(client, user, check);
     } else {
-      return await isMemberOfOrg(client, user, check);
+      return isMemberOfOrg(client, user, check);
     }
   } else {
     core.debug("Checking user " + user + " against " + check);
