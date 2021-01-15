@@ -83,9 +83,7 @@ async function run() {
 
     const client = github.getOctokit(token);
 
-    if (github.context.eventName == "issues") {
-      cleanup_issues(client, query, comment, dryrun);
-    }
+    cleanup_issues(client, query, comment, dryrun);
   } catch (error) {
     console.log(error);
     core.setFailed(error.message);
