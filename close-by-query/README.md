@@ -50,5 +50,6 @@ jobs:
           once you can provide **all** 
           [required information](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.md#how-to-file-a-bug-report).
         
+        
           This is nothing personal. Thank you for your collaboration.
 ```

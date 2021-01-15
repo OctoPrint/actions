@@ -65,21 +65,25 @@ ignored_authors:
   - bzed
 
 validation_comment: >
-  Hi @@AUTHOR@@, 
-  
+  Hi @@@AUTHOR@@, 
+
+
   it looks like there is some **information missing** from your bug report that will
   be needed in order to solve the problem. Read the [Contribution Guidelines](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.md)
   which will provide you with a template to fill out here so that your bug report
   is ready to be investigated (I promise I'll go away then too!).
 
+
   If you did not intend to report a bug but wanted to **request a feature or brain
   storm** about some kind of development, please take special note of the title format
   to use as described in the [Contribution Guidelines](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.md).
+
 
   **Please do not abuse the bug tracker as a support forum** - that can be found at
   [community.octoprint.org](https://community.octoprint.org). Go there for any kind
   of issues with network connectivity, webcam functionality, printer detection or
   any other kind of such support requests or general questions.
+
 
   Also **make sure you are at the right place** - this is the bug tracker of the official
   version of OctoPrint, not the Raspberry Pi image OctoPi nor any unbundled third
@@ -87,6 +91,7 @@ validation_comment: >
   through the [Frequently Asked Questions](http://faq.octoprint.org)** and searched
   the [**existing tickets**](https://github.com/OctoPrint/OctoPrint/search?q=&ref=cmdform&type=Issues)
   for your problem - try multiple search terms please.
+
 
   I'm marking this one now as needing some more information. Please understand that
   if you do not provide that information within the next two weeks
@@ -96,6 +101,7 @@ validation_comment: >
   quickly by following the guidelines linked above. Remember, the less time the devs
   have to spend running after information on tickets, the more time they have to actually
   solve problems and add awesome new features. Thank you!
+
 
   *I'm just a bot 🤖, not a human being, so don't expect any replies
   from me :) Your ticket is read by humans too, I'm just not one of them.*
