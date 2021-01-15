@@ -1,5 +1,5 @@
-name: 'PR Validator'
-description: 'Runs some checks against incoming PRs'
+name: 'Close by query'
+description: 'Closes issues by query with optional comment'
 author: 'foosel'
 inputs:
   repo-token:
