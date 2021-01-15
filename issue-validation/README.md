@@ -68,6 +68,8 @@ ignored_authors:
   - FormerLurker
   - bzed
 
+keyphrase: I like cookies
+
 validation_comment: >
   Hi @@@AUTHOR@@, 
 
