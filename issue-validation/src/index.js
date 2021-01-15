@@ -32,7 +32,8 @@ async function readConfig(client, path) {
 function matchesUser(client, user, check) {
   if (check.startsWith("@")) {
     if (check.includes("/")) {
-      return isMemberOfTeam(client, user, check);
+      //return isMemberOfTeam(client, user, check);
+      return false;
     } else {
       return isMemberOfOrg(client, user, check);
     }
@@ -55,59 +56,59 @@ async function isMemberOfOrg(client, user, org) {
   return member && member.status && member.status === 204;
 }
 
-async function isMemberOfTeam(client, user, team) {
-  if (!team.includes("/")) {
-    return false;
-  }
-  core.debug("Checking membership of user " + user + " in org team " + team);
-
-  if (team.startsWith("@")) {
-    team = team.slice(1);
-  }
-
-  let org;
-  [org, team] = team.split("/", 1);
-
-  const query = `query($cursor: String, $org: String!, $userLogins: [String!], $username: String!) {
-    user(login: $username) {
-      id
-    }
-    organization(login: $org) {
-      teams (first:1, userLogins: $userLogins, after: $cursor) {
-        nodes {
-          name
-        }
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-      }
-    }
-  }`
-
-  let data;
-  let teams = [];
-  let cursor = null;
-
-  try {
-    do {
-      data = await client.graphql(query, {
-        "cursor": cursor,
-        "org": org,
-        "userLogins": [user],
-        "username": user
-      });
-      
-      teams = teams.concat(data.organization.teams.nodes.map((val) => val.name.toLowerCase()));
-      cursor = data.organization.teams.pageInfo.endCursor;
-    } while (!teams.includes(team) && data.organization.teams.pageInfo.hasNextPage);
-  } catch (error) {
-    console.log(error);
-    core.setFailed(error.message);
-  }
-
-  return teams.includes(team);
-}
+//async function isMemberOfTeam(client, user, team) {
+//  if (!team.includes("/")) {
+//    return false;
+//  }
+//  core.debug("Checking membership of user " + user + " in org team " + team);
+//
+//  if (team.startsWith("@")) {
+//    team = team.slice(1);
+//  }
+//
+//  let org;
+//  [org, team] = team.split("/", 1);
+//
+//  const query = `query($cursor: String, $org: String!, $userLogins: [String!], $username: String!) {
+//    user(login: $username) {
+//      id
+//    }
+//    organization(login: $org) {
+//      teams (first:1, userLogins: $userLogins, after: $cursor) {
+//        nodes {
+//          name
+//        }
+//        pageInfo {
+//          hasNextPage
+//          endCursor
+//        }
+//      }
+//    }
+//  }`
+//
+//  let data;
+//  let teams = [];
+//  let cursor = null;
+//
+//  try {
+//    do {
+//      data = await client.graphql(query, {
+//        "cursor": cursor,
+//        "org": org,
+//        "userLogins": [user],
+//        "username": user
+//      });
+//      
+//      teams = teams.concat(data.organization.teams.nodes.map((val) => val.name.toLowerCase()));
+//      cursor = data.organization.teams.pageInfo.endCursor;
+//    } while (!teams.includes(team) && data.organization.teams.pageInfo.hasNextPage);
+//  } catch (error) {
+//    console.log(error);
+//    core.setFailed(error.message);
+//  }
+//
+//  return teams.includes(team);
+//}
 
 function isIgnored(client, issue, labels, config) {
   const title = issue.title.toLowerCase();
@@ -235,7 +236,7 @@ async function run() {
 
     const config = await readConfig(client, configPath);
     if (!config) {
-      console.log("Could not get configuration from repository, existing");
+      console.log("Could not get configuration from repository, exiting");
       return;
     }
     
