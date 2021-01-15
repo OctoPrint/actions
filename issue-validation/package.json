@@ -1,7 +1,7 @@
 {
-  "name": "octoprint-pr-validation-action",
+  "name": "octoprint-issue-validation-action",
   "version": "1.0.0",
-  "description": "This action runs some checks against incoming PRs.",
+  "description": "This action runs some checks against incoming issues.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/OctoPrint/actions/issues"
   },
-  "homepage": "https://github.com/OctoPrint/actions/tree/master/pr-validation#readme",
+  "homepage": "https://github.com/OctoPrint/actions/tree/master/issue-validation#readme",
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/github": "^4.0.0",
