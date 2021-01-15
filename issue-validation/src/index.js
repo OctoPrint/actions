@@ -110,8 +110,7 @@ async function isMemberOfTeam(client, user, team) {
   return teams.includes(team);
 }
 
-function isIgnored(client, issue, config) {
-  const labels = issue.labels.map((val) => val.name.toLowerCase());
+function isIgnored(client, issue, labels, config) {
   const title = issue.title.toLowerCase();
   const author = issue.user.login.toLowerCase();
 
@@ -143,11 +142,8 @@ function checkIssue(issue, config) {
   return issue.body.includes(phrase);
 }
 
-async function run() {
+async function validate_issue(client, config) {
   try {
-
-    const token = core.getInput("repo-token", { required: true });
-    const configPath = core.getInput("configuration-path", { required: true });
 
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
@@ -158,14 +154,6 @@ async function run() {
       return;
     }
 
-    const client = new github.getOctokit(token);
-
-    const config = await readConfig(client, configPath);
-    if (!config) {
-      console.log("Could not get configuration from repository, existing");
-      return;
-    }
-    
     // Get current issue data (the data in the context might be outdated)
     const { data: issue } = await client.issues.get({
       owner: owner,
@@ -173,31 +161,33 @@ async function run() {
       issue_number: number
     });
 
-    if (isIgnored(client, issue, config)) {
+    const labels = issue.labels.map((val) => val.name.toLowerCase());
+    if (isIgnored(client, issue, labels, config)) {
       console.log("Issue is ignored by validation");
       return;
     }
 
-    if (!checkIssue(issue)) {
+    if (!checkIssue(issue, config)) {
       // something's missing here, label & comment accordingly
-      if (config.problem_label) {
+      const problem_label = config.problem_label;
+      if (problem_label && !labels.includes(problem_label)) {
         client.issues.addLabels({
           owner: owner,
           repo: repo,
           issue_number: number,
-          labels: [config.problem_label]
+          labels: [problem_label]
         });
+
+        if (config.text_reminder) {
+          client.issues.createComment({
+            owner: owner,
+            repo: repo,
+            issue_number: number,
+            body: config.text_reminder.replace("@@AUTHOR@@", issue.user.login)
+          });
+        }
       }
 
-      if (config.text_reminder) {
-        client.issues.createComment({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          body: config.text_reminder.replace("@@AUTHOR@@", issue.user.login)
-        });
-      }
-    
       core.setFailed("This issue has not passed validation");
     } else {
       // mark as approved
@@ -211,6 +201,28 @@ async function run() {
       }
     }
   
+  } catch (error) {
+    console.log(error);
+    core.setFailed(error.message);
+  }
+}
+
+async function run() {
+  try {
+    const token = core.getInput("repo-token", { required: true });
+    const configPath = core.getInput("configuration-path", { required: true });
+
+    const client = new github.getOctokit(token);
+
+    const config = await readConfig(client, configPath);
+    if (!config) {
+      console.log("Could not get configuration from repository, existing");
+      return;
+    }
+    
+    if (github.context.eventName == "issues") {
+      validate_issue(client, config);
+    }
   } catch (error) {
     console.log(error);
     core.setFailed(error.message);
