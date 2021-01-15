@@ -160,7 +160,7 @@ async function validate_issue(client, config) {
       issue_number: number
     });
 
-    const labels = issue.labels.map((val) => val.name.toLowerCase());
+    let labels = issue.labels.map((val) => val.name.toLowerCase());
     if (isIgnored(client, issue, labels, config)) {
       console.log("Issue is ignored by validation");
       return;
