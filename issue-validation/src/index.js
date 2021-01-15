@@ -15,8 +15,7 @@ async function fetchContent(client, path) {
   const response = await client.repos.getContent({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    path: path,
-    ref: github.context.sha
+    path: path
   });
 
   return Buffer.from(response.data.content, response.data.encoding).toString();
@@ -178,12 +177,12 @@ async function validate_issue(client, config) {
           labels: [problem_label]
         });
 
-        if (config.text_reminder) {
+        if (config.validation_comment) {
           client.issues.createComment({
             owner: owner,
             repo: repo,
             issue_number: number,
-            body: config.text_reminder.replace("@@AUTHOR@@", issue.user.login)
+            body: config.validation_comment.replace("@@AUTHOR@@", issue.user.login)
           });
         }
       }
@@ -212,7 +211,7 @@ async function run() {
     const token = core.getInput("repo-token", { required: true });
     const configPath = core.getInput("configuration-path", { required: true });
 
-    const client = new github.getOctokit(token);
+    const client = github.getOctokit(token);
 
     const config = await readConfig(client, configPath);
     if (!config) {
@@ -220,7 +219,7 @@ async function run() {
       return;
     }
     
-    if (github.context.eventName == "issues") {
+    if (github.context.eventName === "issues") {
       validate_issue(client, config);
     }
   } catch (error) {
