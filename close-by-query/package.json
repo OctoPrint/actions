@@ -1,0 +1,28 @@
+{
+  "name": "octoprint-close-by-query-action",
+  "version": "1.0.0",
+  "description": "This action closes issues and/or PRs matched by a query with an optional comment.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx ncc build src/index.js -m -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoPrint/actions.git"
+  },
+  "keywords": [],
+  "author": "Gina Häußge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OctoPrint/actions/issues"
+  },
+  "homepage": "https://github.com/OctoPrint/actions/tree/master/close-by-query#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.27.0"
+  }
+}
