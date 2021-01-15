@@ -1,11 +1,9 @@
-# PR Validation Action
+# Close issues by query Action
 
-This action performs some validation checks against incoming PRs.
+This action performs closes issues matching a search query and optionally
+adds a comment.
 
-It will check whether a non-empty description has been provided and
-whether a set of allowed PR targets and forbidden PR sources is matched
-which can optionally be modified based on labels already applied on
-the PR through earlier steps.
+Inspired by [lee-dohm/close-matching-issues](https://github.com/lee-dohm/close-matching-issues).
 
 ## Inputs
 
@@ -20,6 +18,10 @@ the PR through earlier steps.
 ### `comment`
 
 A comment to post upon closing. No comment will be posted if left unset.
+
+### `dry-run`
+
+If set, no actual action will be performed, the action will perform a dry-run only.
 
 ## Usage
 
@@ -42,11 +44,11 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         query: 'is:issue is:open label:incomplete created:<${{ steps.date.outputs.CUTOFF }}'
-        comment: |
+        comment: >
           Since apparently some of the required information is still missing, this will be
           closed now, sorry. Feel free to request a reopen of this or create a new issue
           once you can provide **all** 
-          [required information](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.        md#how-to-file-a-bug-report).
+          [required information](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.md#how-to-file-a-bug-report).
         
           This is nothing personal. Thank you for your collaboration.
 ```

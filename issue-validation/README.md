@@ -2,6 +2,12 @@
 
 This action performs some validation checks against incoming issues.
 
+Currently only the presence of a configured `keyphrase` in the issue's OP is checked.
+
+Issues can be excluded from validation through present labels, snippets in their
+title or author (exact match or public organization membership). Ignore matching
+is not case sensitive.
+
 ## Inputs
 
 ### `repo-token`
@@ -58,7 +64,7 @@ ignored_authors:
   - FormerLurker
   - bzed
 
-validation_comment: |
+validation_comment: >
   Hi @@AUTHOR@@, 
   
   it looks like there is some **information missing** from your bug report that will
