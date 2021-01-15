@@ -8,6 +8,9 @@ inputs:
     description: 'The path for the issue-validation config'
     default: '.github/issue-validation.yml'
     required: false
+  dry-run:
+    description: 'If set, no actions will be performed'
+    required: false
 
 runs:
   using: 'node12'

@@ -8,7 +8,10 @@ inputs:
     description: 'The path for the pr-validation config'
     default: '.github/pr-validation.yml'
     required: false
-
+  dry-run:
+    description: 'If set, no actions will be performed'
+    required: false
+  
 runs:
   using: 'node12'
   main: 'dist/index.js'

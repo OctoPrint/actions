@@ -142,7 +142,7 @@ function checkIssue(issue, config) {
   return issue.body.includes(phrase);
 }
 
-async function validate_issue(client, config) {
+async function validate_issue(client, config, dryrun) {
   try {
 
     const owner = github.context.repo.owner;
@@ -174,24 +174,28 @@ async function validate_issue(client, config) {
       core.debug("Issue didn't pass validation");
 
       if (problem_label && !labels.includes(problem_label)) {
-        core.debug("Adding problem_label: " + problem_label);
+        if (dryrun) {
+          core.info("Would now mark issue as incomplete");
+        } else {
+          core.debug("Adding problem_label: " + problem_label);
 
-        await client.issues.addLabels({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          labels: [problem_label]
-        });
-
-        if (config.validation_comment) {
-          core.debug("Adding comment");
-
-          client.issues.createComment({
+          await client.issues.addLabels({
             owner: owner,
             repo: repo,
             issue_number: number,
-            body: config.validation_comment.replace("@@AUTHOR@@", issue.user.login)
+            labels: [problem_label]
           });
+
+          if (config.validation_comment) {
+            core.debug("Adding comment");
+  
+            client.issues.createComment({
+              owner: owner,
+              repo: repo,
+              issue_number: number,
+              body: config.validation_comment.replace("@@AUTHOR@@", issue.user.login)
+            });
+          }
         }
       }
 
@@ -200,24 +204,28 @@ async function validate_issue(client, config) {
       // mark as approved
       core.debug("Issue passed validation");
 
-      let setLabels = false;
+      if (dryrun) {
+        core.info("Would now mark issue as approved");
+      } else {
+        let setLabels = false;
 
-      if (problem_label && labels.includes(problem_label)) {
-        labels = labels.filter(label => label !== problem_label);
-        setLabels = true;
-      }
-      if (approve_label && !labels.includes(approve_label)) {
-        labels.push(approve_label);
-        setLabels = true;
-      }
-
-      if (setLabels) {
-        client.issues.setLabels({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          labels: labels
-        });
+        if (problem_label && labels.includes(problem_label)) {
+          labels = labels.filter(label => label !== problem_label);
+          setLabels = true;
+        }
+        if (approve_label && !labels.includes(approve_label)) {
+          labels.push(approve_label);
+          setLabels = true;
+        }
+  
+        if (setLabels) {
+          client.issues.setLabels({
+            owner: owner,
+            repo: repo,
+            issue_number: number,
+            labels: labels
+          });
+        }
       }
     }
   
@@ -231,6 +239,7 @@ async function run() {
   try {
     const token = core.getInput("repo-token", { required: true });
     const configPath = core.getInput("configuration-path", { required: true });
+    const dryrun = core.getInput("dry-run") || false;
 
     const client = github.getOctokit(token);
 
@@ -241,7 +250,7 @@ async function run() {
     }
     
     if (github.context.eventName === "issues") {
-      validate_issue(client, config);
+      validate_issue(client, config, dryrun);
     }
   } catch (error) {
     console.log(error);

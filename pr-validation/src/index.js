@@ -68,6 +68,7 @@ async function run() {
 
     const token = core.getInput("repo-token", { required: true });
     const configPath = core.getInput("configuration-path", { required: true });
+    const dryrun = core.getInput("dry-run") || false;
 
     const owner = github.context.repo.owner;
     const repo = github.context.repo.repo;
@@ -130,65 +131,73 @@ async function run() {
 
     if (problems.length) {
       // Problems were detected, post comment and label accordingly
-      let comment = "**Automatic PR Validation failed**\n\n"
-                  + "There were one or more problems detected with this PR:\n\n";
+      if (dryrun) {
+        core.info("Would now mark PR as problematic");
+      } else {
+        let comment = "**Automatic PR Validation failed**\n\n"
+                    + "There were one or more problems detected with this PR:\n\n";
 
-      problems.forEach(problem => {
-        comment += "  * " + problem + "\n";
-      });
+        problems.forEach(problem => {
+          comment += "  * " + problem + "\n";
+        });
 
-      comment += "\n\nPlease take a look at the "
-                + "Contribution Guidelines of this repository "
-                + "and make sure that the PR follows them. Thank you!\n\n"
-                + "*I'm just a bot 🤖 that does automatic checks, a human will intervene if I've made a mistake.*";
+        comment += "\n\nPlease take a look at the "
+                  + "Contribution Guidelines of this repository "
+                  + "and make sure that the PR follows them. Thank you!\n\n"
+                  + "*I'm just a bot 🤖 that does automatic checks, a human will intervene if I've made a mistake.*";
 
-      client.issues.createComment({
-        owner: owner,
-        repo: repo,
-        issue_number: number,
-        body: comment
-      });
-
-      let setLabels = false;
-
-      if (approve_label && labels.includes(approve_label)) {
-        labels = labels.filter(label => label !== approve_label);
-        setLabels = true;
-      }
-      if (problem_label && !labels.includes(problem_label)) {
-        labels.push(problem_label);
-        setLabels = true;
-      }
-
-      if (setLabels) {
-        client.issues.setLabels({
+        client.issues.createComment({
           owner: owner,
           repo: repo,
           issue_number: number,
-          labels: labels
+          body: comment
         });
-      }
 
-      core.setFailed("This PR has not passed validation");
+        let setLabels = false;
+
+        if (approve_label && labels.includes(approve_label)) {
+          labels = labels.filter(label => label !== approve_label);
+          setLabels = true;
+        }
+        if (problem_label && !labels.includes(problem_label)) {
+          labels.push(problem_label);
+          setLabels = true;
+        }
+
+        if (setLabels) {
+          client.issues.setLabels({
+            owner: owner,
+            repo: repo,
+            issue_number: number,
+            labels: labels
+          });
+        }
+
+        core.setFailed("This PR has not passed validation");
+      }
     } else {
-      let setLabels = false;
+      if (dryrun) {
+        core.info("Would now mark PR as approved");
+      } else {
+        let setLabels = false;
 
-      if (problem_label && labels.includes(problem_label)) {
-        labels = labels.filter(label => label !== problem_label);
-        setLabels = true;
-      }
-      if (approve_label && !labels.includes(approve_label)) {
-        labels.push(approve_label);
-        setLabels = true;
-      }
+        if (problem_label && labels.includes(problem_label)) {
+          labels = labels.filter(label => label !== problem_label);
+          setLabels = true;
+        }
+        if (approve_label && !labels.includes(approve_label)) {
+          labels.push(approve_label);
+          setLabels = true;
+        }
 
-      if (setLabels) {
-        client.issues.setLabels({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          labels: labels
-        });
+        if (setLabels) {
+          client.issues.setLabels({
+            owner: owner,
+            repo: repo,
+            issue_number: number,
+            labels: labels
+          });
+        }
       }
     }
 

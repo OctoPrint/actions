@@ -17,6 +17,10 @@ the PR through earlier steps.
 
 The path to the yml configuration file that configures the branch restrictions.
 
+### `dry-run`
+
+If set, no actual action will be performed, the action will perform a dry-run only.
+
 ## Usage
 
 `.github/workflows/pr-validation.yml`:
