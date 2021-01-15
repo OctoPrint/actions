@@ -47,9 +47,11 @@ async function isMemberOfOrg(client, user, org) {
     org = org.slice(1);
   }
 
-  let member = await client.orgs.checkPublicMembershipForUser({ org, user });
-  console.log("is member? " + member);
-  return member;
+  let member = await client.orgs.checkPublicMembershipForUser({ 
+    "org": org, 
+    "username": user 
+  });
+  return member && member.status && member.status === 204;
 }
 
 async function isMemberOfTeam(client, user, team) {
