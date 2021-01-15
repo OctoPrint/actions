@@ -40,7 +40,7 @@ jobs:
     - id: date
       run: |
         echo "::set-output name=CUTOFF::`date --date='14 days ago' +'%Y-%m-%d'`"
-    - uses: OctoPrint/actions/issue-validation@main
+    - uses: OctoPrint/actions/close-by-query@main
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         query: 'is:issue is:open label:incomplete created:<${{ steps.date.outputs.CUTOFF }}'
@@ -50,6 +50,6 @@ jobs:
           once you can provide **all** 
           [required information](https://github.com/OctoPrint/OctoPrint/blob/master/CONTRIBUTING.md#how-to-file-a-bug-report).
         
-        
+
           This is nothing personal. Thank you for your collaboration.
 ```

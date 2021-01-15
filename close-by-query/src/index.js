@@ -14,7 +14,7 @@ async function search(client, query, per_page) {
         "q": query,
         "sort": "created",
         "order": "asc",
-        "per_page": max,
+        "per_page": per_page,
         "page": page
       });
 
