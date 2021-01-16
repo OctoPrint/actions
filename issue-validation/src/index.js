@@ -29,13 +29,13 @@ async function readConfig(client, path) {
   return config;
 }
 
-function matchesUser(client, user, check) {
+async function matchesUser(client, user, check) {
   if (check.startsWith("@")) {
     if (check.includes("/")) {
       //return isMemberOfTeam(client, user, check);
       return false;
     } else {
-      return isMemberOfOrg(client, user, check);
+      return await isMemberOfOrg(client, user, check);
     }
   } else {
     core.debug("Checking user " + user + " against " + check);
@@ -54,6 +54,7 @@ async function isMemberOfOrg(client, user, org) {
     "username": user 
   })
   .catch(error => { member = error });
+  
   return member && member.status && member.status === 204;
 }
 
@@ -111,7 +112,7 @@ async function isMemberOfOrg(client, user, org) {
 //  return teams.includes(team);
 //}
 
-function isIgnored(client, issue, labels, config) {
+async function isIgnored(client, issue, labels, config) {
   const title = issue.title.toLowerCase();
   const author = issue.user.login.toLowerCase();
 
@@ -125,10 +126,13 @@ function isIgnored(client, issue, labels, config) {
   } else if (ignored_titles.some((t) => title.includes(t))) {
     core.debug("Issue is ignored due to title: '" + title + "' vs " + ignored_titles.join(","));
     return true;
-  } else if (ignored_authors.some((a) => matchesUser(client, author, a))) {
-    core.debug("Issue is ignored due to author: '" + author + "' vs " + ignored_authors.join(","));
-    return true;
   } else {
+    for (a of ignored_authors) {
+      if (await matchesUser(client, author, a)) {
+        core.debug("Issue is ignored due to author: '" + author + "' vs " + a);
+        return true;
+      }
+    }
     return false;
   }
 }
@@ -163,7 +167,7 @@ async function validate_issue(client, config, dryrun) {
     });
 
     let labels = issue.labels.map((val) => val.name.toLowerCase());
-    if (isIgnored(client, issue, labels, config)) {
+    if (await isIgnored(client, issue, labels, config)) {
       console.log("Issue is ignored by validation");
       return;
     }
