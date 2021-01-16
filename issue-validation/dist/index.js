@@ -9945,15 +9945,12 @@ async function isMemberOfOrg(client, user, org) {
   }
   core.debug("Checking membership of " + user + " in org " + org);
 
-  try {
-    let member = await client.orgs.checkPublicMembershipForUser({ 
-      "org": org, 
-      "username": user 
-    });
-    return member && member.status && member.status === 204;
-  } catch (error) {
-    return false;
-  }
+  let member = client.orgs.checkPublicMembershipForUser({ 
+    "org": org, 
+    "username": user 
+  })
+  .catch(error => { member = error });
+  return member && member.status && member.status === 204;
 }
 
 //async function isMemberOfTeam(client, user, team) {
