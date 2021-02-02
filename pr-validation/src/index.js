@@ -45,7 +45,7 @@ function checkPr(pr, allowed_targets, forbidden_sources) {
 
   if (forbidden_sources.includes(source)) {
     problems.push("The PR's source branch `" + source + "` is among the "
-                + "forbidden source branches: " + blacklisted_sources.join(", ")
+                + "forbidden source branches: " + forbidden_sources.join(", ")
                 + ". Please always create PRs from a custom branch in your "
                 + "repository to avoid accidental commits making it into "
                 + "your PR.");
