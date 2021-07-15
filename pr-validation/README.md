@@ -47,14 +47,14 @@ approve_label: 'approved'
 problem_label: 'needs some work'
 ignore_label: 'skip validation'
 
-allowed_targets: ['maintenance', 'devel', 'staging/maintenance', 'staging/devel']
+forbidden_targets: ['master']
 forbidden_sources: ['master', 'maintenance', 'devel']
 
 labels:
   docs:
-    additional_allowed_targets: ['main', 'master']
+    forbidden_targets: []
   meta:
-    additional_allowed_targets: ['main', 'master']
+    forbidden_targets: []
   ci/cd:
-    additional_allowed_targets: ['main', 'master']
+    forbidden_targets: []
 ```

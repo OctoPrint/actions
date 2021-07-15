@@ -29,7 +29,7 @@ async function readConfig(client, path) {
   return config;
 }
 
-function checkPr(pr, allowed_targets, forbidden_sources) {
+function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources) {
   const source = pr.head.ref;
   const target = pr.base.ref;
   console.log("PR source is " + source);
@@ -52,12 +52,18 @@ function checkPr(pr, allowed_targets, forbidden_sources) {
     core.error("PR's source branch is among the forbidden source branches");
   }
 
-  if (!allowed_targets.includes(target)) {
+  if (allowed_targets && !allowed_targets.includes(target)) {
     problems.push("The PR's target branch `" + target + "` is not among the "
                 + "allowed target branches: " + allowed_targets.join(", ")
                 + ". Please only create PRs against these.");
     core.error("PR's target branch is not among the allowed target branches");
+  } else if (forbidden_targets && forbidden_targets.includes(target)) {
+    problems.push("The PR's target branch `" + target + "` is among the "
+                + "forbidden target branches: " + forbidden_targets.join(", ")
+                + ". Please only create PRs against others than that.");
+    core.error("PR's target branch is among the forbidden target branches");
   }
+
 
   return problems;
 }
@@ -97,8 +103,9 @@ async function run() {
     const problem_label = config.problem_label;
     const approve_label = config.approve_label;
     const ignore_label = config.ignore_label;
-    let allowed_targets = config.allowed_targets;
-    let forbidden_sources = config.forbidden_sources;
+    let allowed_targets = config.allowed_targets || [];
+    let forbidden_targets = config.forbidden_targets || [];
+    let forbidden_sources = config.forbidden_sources || [];
 
     let labels = [];
     pr.labels.forEach(label => { labels.push(label.name) });
@@ -117,11 +124,17 @@ async function run() {
           if (c.allowed_targets) {
             allowed_targets = c.allowed_targets;
           }
+          if (c.forbidden_targets) {
+            forbidden_targets = c.forbidden_targets;
+          }
           if (c.forbidden_sources) {
             forbidden_sources = c.forbidden_sources;
           }
           if (c.additional_allowed_targets) {
             allowed_targets = allowed_targets.concat(c.additional_allowed_targets);
+          }
+          if (c.additional_forbidden_targets) {
+            forbidden_targets = forbidden_targets.concat(c.additional_forbidden_targets);
           }
           if (c.additional_forbidden_sources) {
             forbidden_sources = forbidden_sources.concat(c.additional_forbidden_sources);
@@ -131,9 +144,10 @@ async function run() {
     }
 
     console.log("Allowed targets: " + allowed_targets.join(", "));
+    console.log("Forbidden targets: " + forbidden_targets.join(", "));
     console.log("Forbidden sources: " + forbidden_sources.join(", "));
 
-    const problems = checkPr(pr, allowed_targets, forbidden_sources);
+    const problems = checkPr(pr, allowed_targets, forbidden_targets, allowed_sources, forbidden_sources);
 
     if (problems.length) {
       // Problems were detected, post comment and label accordingly
