@@ -103,9 +103,15 @@ async function run() {
     const problem_label = config.problem_label;
     const approve_label = config.approve_label;
     const ignore_label = config.ignore_label;
-    let allowed_targets = config.allowed_targets || [];
-    let forbidden_targets = config.forbidden_targets || [];
-    let forbidden_sources = config.forbidden_sources || [];
+
+    let allowed_targets = config.allowed_targets;
+    if (!allowed_targets) allowed_targets = [];
+
+    let forbidden_targets = config.forbidden_targets;
+    if (!forbidden_targets) forbidden_targets = [];
+    
+    let forbidden_sources = config.forbidden_sources;
+    if (!forbidden_sources) forbidden_sources = [];
 
     let labels = [];
     pr.labels.forEach(label => { labels.push(label.name) });
