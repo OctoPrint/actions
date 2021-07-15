@@ -52,12 +52,12 @@ function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources) {
     core.error("PR's source branch is among the forbidden source branches");
   }
 
-  if (allowed_targets && !allowed_targets.includes(target)) {
+  if (allowed_targets.length && !allowed_targets.includes(target)) {
     problems.push("The PR's target branch `" + target + "` is not among the "
                 + "allowed target branches: " + allowed_targets.join(", ")
                 + ". Please only create PRs against these.");
     core.error("PR's target branch is not among the allowed target branches");
-  } else if (forbidden_targets && forbidden_targets.includes(target)) {
+  } else if (forbidden_targets.length && forbidden_targets.includes(target)) {
     problems.push("The PR's target branch `" + target + "` is among the "
                 + "forbidden target branches: " + forbidden_targets.join(", ")
                 + ". Please only create PRs against others than that.");
