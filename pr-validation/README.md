@@ -15,7 +15,7 @@ the PR through earlier steps.
 
 ### `configuration-path`
 
-The path to the yml configuration file that configures the branch restrictions.
+The path to the yml configuration file that configures the validation. Defaults to `.github/pr-validation.yml`.
 
 ### `dry-run`
 
@@ -45,6 +45,7 @@ jobs:
 ```yaml
 approve_label: 'approved'
 problem_label: 'needs some work'
+ignore_label: 'skip validation'
 
 allowed_targets: ['maintenance', 'devel', 'staging/maintenance', 'staging/devel']
 forbidden_sources: ['master', 'maintenance', 'devel']

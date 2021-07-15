@@ -96,12 +96,18 @@ async function run() {
 
     const problem_label = config.problem_label;
     const approve_label = config.approve_label;
+    const ignore_label = config.ignore_label;
     let allowed_targets = config.allowed_targets;
     let forbidden_sources = config.forbidden_sources;
 
     let labels = [];
     pr.labels.forEach(label => { labels.push(label.name) });
     console.log("PR labels are " + labels.join(", "));
+
+    if (labels.includes(ignore_label)) {
+      console.log("PR has ignore label " + ignore_label + ", ignoring it");
+      return;
+    }
 
     if (config.labels) {
       for (const label in config.labels) {
