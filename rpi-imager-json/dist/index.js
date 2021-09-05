@@ -6226,7 +6226,7 @@ function rename(release, name) {
 }
 
 async function generate(releases, nameStable, namePrerelease) {
-    const [ stable, prerelease ] = releases;
+    const { stable, prerelease } = releases;
     if (stable === null || stable.releaseAssets.nodes.length === 0) {
         return null;
     }
