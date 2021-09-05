@@ -37,6 +37,7 @@ runs:
         IMAGE_SIZE=${{ inputs.image_size }}
         ZIP_SHA256="${{ inputs.zip_sha256 }}"
         ZIP_SIZE=${{ inputs.zip_size }}
+        OUTPUT="${{ inputs.output }}"
 
         NAME="${{ inputs.name }}"
         DESCRIPTIONS="${{ inputs.description }}"
@@ -44,7 +45,7 @@ runs:
         URL="${{ inputs.url }}"
         DATE=`date '+%Y-%m-%d'`
 
-        cat > rpi-imager.json <<EOF
+        cat > "$OUTPUT" <<EOF
         {
           "name": "$NAME",
           "description": "$DESCRIPTION",
