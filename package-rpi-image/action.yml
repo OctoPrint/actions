@@ -1,0 +1,73 @@
+name: "Package RPi image"
+description: "Packages an RPi image as a zip, generates a .md5 and .sha256 files for image and zip"
+inputs:
+  image_path:
+    description: "The path to the image file"
+    required: true
+outputs:
+  image:
+    description: "The name of the image"
+    value: "${{ steps.package-image.outputs.image }}"
+  image_sha256:
+    description: "The SHA256 sum of the image"
+    value: "${{ steps.package-image.outputs.image_sha256 }}"
+  image_size:
+    description: "The size of the image in bytes"
+    value: "${{ steps.package-image.outputs.image_size }}"
+  zip:
+    description: "The name of the packaged image zip"
+    value: "${{ steps.package-image.outputs.zip }}"
+  zip_path:
+    description: "The path of the package image zip"
+    value: "${{ steps.package-image.outputs.zip_path }}"
+  zip_sha256:
+    description: "The SHA256 sum of the packaged image zip"
+    value: "${{ steps.package-image.outputs.zip_sha256 }}"
+  zip_size:
+    description: "The size of the packaged image zip in bytes"
+    value: "${{ steps.package-image.outputs.zip_size }}"
+runs:
+  using: "composite"
+  steps:
+    - name: "📦 Package image"
+      id: package-image
+      run: |
+        IMAGE_PATH="${{ inputs.image_path }}"
+
+        FOLDER=$(dirname "$IMAGE_PATH")
+        IMAGE=$(basename "$IMAGE_PATH")
+        ZIP="${IMAGE%.*}.zip"
+
+        cd $FOLDER
+
+        # md5, sha256 and size of the image
+
+        md5sum $IMAGE > $IMAGE.md5
+        sha256sum $IMAGE > $IMAGE.sha256
+
+        IMAGE_SHA256=`cat $IMAGE.sha256 | cut -d ' ' -f 1`
+        IMAGE_SIZE=`stat -c %s $IMAGE`
+
+        # zip the image
+
+        zip $ZIP $IMAGE
+
+        # md5, sha256 and size of the zip
+
+        md5sum $ZIP > $ZIP.md5
+        sha256sum $ZIP > $ZIP.sha256
+
+        ZIP_SHA256=`cat $ZIP.sha256 | cut -d ' ' -f 1`
+        ZIP_SIZE=`stat -c %s $ZIP`
+
+        # outputs
+
+        echo "::set-output name=image:$(echo $IMAGE)"
+        echo "::set-output name=image_sha256:$(echo $IMAGE_256)"
+        echo "::set-output name=image_size:$(echo $IMAGE_SIZE)"
+
+        echo "::set-output name=zip::$(echo $ZIP)"
+        echo "::set-output name=zip_path::${IMAGE_PATH%.*}.zip"
+        echo "::set-output name=zip_sha256::$(echo $ZIP_SHA256)"
+        echo "::set-output name=zip_size::$(echo $ZIP_size)"
+      shell: bash

@@ -1,0 +1,60 @@
+name: "Create rpi-imager.json snippet"
+description: "Generates an rpi-imager.json snippet based on given checksums, sizes and metadata"
+inputs:
+  name:
+    description: "The name of the distribution"
+    required: true
+  description:
+    description: "The description of the distribution"
+    required: true
+  icon:
+    description: "The icon of the distribution"
+    required: true
+  url:
+    description: "The download URL for the image zip"
+    required: true
+  output:
+    description: "The path to the rpi-imager.json file"
+    required: true
+  image_sha256:
+    description: "The sha256 checksum of the image"
+    required: true
+  image_size:
+    description: "The size of the image"
+    required: true
+  zip_sha256:
+    description: "The sha256 checksum of the zip"
+    required: true
+  zip_size:
+    description: "The size of the zip"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: "🆕 Create rpi-imager.json snippet"
+      run: |
+        IMAGE_SHA256="${{ inputs.image_sha256 }}"
+        IMAGE_SIZE=${{ inputs.image_size }}
+        ZIP_SHA256="${{ inputs.zip_sha256 }}"
+        ZIP_SIZE=${{ inputs.zip_size }}
+
+        NAME="${{ inputs.name }}"
+        DESCRIPTIONS="${{ inputs.description }}"
+        ICON="${{ inputs.icon }}"
+        URL="${{ inputs.url }}"
+        DATE=`date '+%Y-%m-%d'`
+
+        cat > rpi-imager.json <<EOF
+        {
+          "name": "$NAME",
+          "description": "$DESCRIPTION",
+          "url": "$URL",
+          "icon": "$ICON",
+          "release_date": "$DATE",
+          "extract_size": $IMAGE_SIZE,
+          "extract_sha256": "$IMAGE_SHA256",
+          "image_download_size": $ZIP_SIZE,
+          "image_download_sha256": "$ZIP_SHA256"
+        }
+        EOF
+      shell: bash
