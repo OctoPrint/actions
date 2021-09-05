@@ -14,7 +14,6 @@ inputs:
     description: "The name for the stable release"
   namePrerelease:
     description: "The name for the prerelease"
-outputs: []
 runs:
   using: "node14"
   main: "dist/index.js"
