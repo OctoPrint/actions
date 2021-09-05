@@ -1,0 +1,24 @@
+{
+  "name": "Create rpi-imager.json",
+  "version": "1.0.0",
+  "description": "Generates an rpi-imager.json based on latest GitHub stable and prerelease",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx ncc build src/index.js -m -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoPrint/actions.git"
+  },
+  "keywords": [],
+  "author": "Gina Häußge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OctoPrint/actions/issues"
+  },
+  "homepage": "https://github.com/OctoPrint/actions/tree/master/rpi-imager-json#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
