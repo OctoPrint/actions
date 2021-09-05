@@ -63,7 +63,7 @@ runs:
         # outputs
 
         echo "::set-output name=image:$(echo $IMAGE)"
-        echo "::set-output name=image_sha256:$(echo $IMAGE_256)"
+        echo "::set-output name=image_sha256:$(echo $IMAGE_SHA256)"
         echo "::set-output name=image_size:$(echo $IMAGE_SIZE)"
 
         echo "::set-output name=zip::$(echo $ZIP)"
