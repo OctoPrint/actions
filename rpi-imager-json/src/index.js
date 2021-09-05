@@ -3,7 +3,8 @@ const github = require('@actions/github');
 const fs = require("fs");
 const fetch = require("node-fetch");
 
-async function fetchReleases(owner, repo) {
+async function fetchReleases(token, owner, repo) {
+    const octokit = github.getOctokit(token);
     const query = `query {
         repository(owner:"${owner}", name:"${repo}") {
           releases(first:100, orderBy: {field:CREATED_AT, direction:DESC}) {
@@ -22,7 +23,7 @@ async function fetchReleases(owner, repo) {
         }
       }`;
       
-    const result = await github.graphql(query);
+    const result = await octokit.graphql(query);
 
     let stable = null;
     let prerelease = null;
@@ -76,13 +77,14 @@ async function serialize(data, output) {
 }
 
 async function run() {
+    const token = core.getInput("token", { required: true });
     const owner = core.getInput('owner', { required: true });
     const repo = core.getInput('repo', { required: true });
     const output = core.getInput('output', { required: true });
     const nameStable = core.getInput('nameStable') || null;
     const namePrerelease = core.getInput('namePrerelease') || null;
 
-    const releases = await fetchReleases(owner, repo);
+    const releases = await fetchReleases(token, owner, repo);
     const data = await generate(releases, nameStable, namePrerelease);
     if (data !== null) {
         await serialize(data, output);

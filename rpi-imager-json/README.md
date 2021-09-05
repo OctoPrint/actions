@@ -11,13 +11,17 @@ Can be used to automatically generate `rpi-imager.json` as part of a static page
 
 ## Inputs
 
+### `token`
+
+**Required** The GitHub token to use, should usually be set to `secrets.GITHUB_TOKEN`.
+
 ### `owner`
 
 **Required** The owner of the repository to monitor.
 
 ### `repo`
 
-**Required** The name of the repository to monitor
+**Required** The name of the repository to monitor.
 
 ### `output`
 
@@ -49,6 +53,7 @@ jobs:
     # ...
     - uses: OctoPrint/actions/rpi-imager-json@main
       with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
         owner: OctoPrint
         repo: OctoPi-UpToDate
         output: ./files/rpi-imager.json
