@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/OctoPrint/actions/tree/master/rpi-imager-json#readme",
   "dependencies": {
+    "@actions/core": "^1.5.0",
+    "@actions/github": "^5.0.0",
     "node-fetch": "^2.6.1"
   }
 }
