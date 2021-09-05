@@ -6208,9 +6208,11 @@ async function fetchReleases(token, owner, repo) {
         if (stable === null && prerelease === null && release.isPrerelease) {
             // newer prerelease than current stable, we take the latest
             prerelease = release;
+            core.info(`Found prerelease: ${release.tag.name}`);
         } else if (stable === null && !release.isPrerelease) {
             // latest stable
             stable = release;
+            core.info(`Found stable: ${release.tag.name}`);
         }
     }
 
@@ -6249,8 +6251,8 @@ async function generate(releases, nameStable, namePrerelease) {
 
 async function serialize(data, output) {
     const serialized = JSON.stringify(data, null, 2);
-    core.info("rpi-imager.json:", serialized);
     fs.writeFileSync(output, serialized);
+    core.info(`Generated rpi-imager.json: ${serialized}`);
 }
 
 async function run() {
