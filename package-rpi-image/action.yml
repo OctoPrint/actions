@@ -37,10 +37,13 @@ runs:
         FOLDER=$(dirname "$IMAGE_PATH")
         IMAGE=$(basename "$IMAGE_PATH")
         ZIP="${IMAGE%.*}.zip"
+        ZIP_PATH="${IMAGE_PATH%.*}.zip"
 
         cd $FOLDER
 
         # md5, sha256 and size of the image
+
+        echo "Calculating checksums of $IMAGE..."
 
         md5sum $IMAGE > $IMAGE.md5
         sha256sum $IMAGE > $IMAGE.sha256
@@ -48,11 +51,18 @@ runs:
         IMAGE_SHA256=`cat $IMAGE.sha256 | cut -d ' ' -f 1`
         IMAGE_SIZE=`stat -c %s $IMAGE`
 
+        echo "IMAGE_SHA256: $IMAGE_SHA256"
+        echo "IMAGE_SIZE: $IMAGE_SIZE"
+
         # zip the image
+
+        echo "Zipping $IMAGE to $ZIP..."
 
         zip $ZIP $IMAGE
 
         # md5, sha256 and size of the zip
+
+        echo "Calculating checksums of $ZIP..."
 
         md5sum $ZIP > $ZIP.md5
         sha256sum $ZIP > $ZIP.sha256
@@ -60,14 +70,16 @@ runs:
         ZIP_SHA256=`cat $ZIP.sha256 | cut -d ' ' -f 1`
         ZIP_SIZE=`stat -c %s $ZIP`
 
+        echo "ZIP_SHA256: $ZIP_SHA256"
+        echo "ZIP_SIZE: $ZIP_SIZE"
+
         # outputs
 
-        echo "::set-output name=image:$(echo $IMAGE)"
+        echo "::set-output name=image_name:$(echo $IMAGE)"
         echo "::set-output name=image_sha256:$(echo $IMAGE_SHA256)"
         echo "::set-output name=image_size:$(echo $IMAGE_SIZE)"
-
-        echo "::set-output name=zip::$(echo $ZIP)"
-        echo "::set-output name=zip_path::${IMAGE_PATH%.*}.zip"
+        echo "::set-output name=zip_name::$(echo $ZIP)"
+        echo "::set-output name=zip_path::$(echo $ZIP_PATH)"
         echo "::set-output name=zip_sha256::$(echo $ZIP_SHA256)"
-        echo "::set-output name=zip_size::$(echo $ZIP_size)"
+        echo "::set-output name=zip_size::$(echo $ZIP_SIZE)"
       shell: bash

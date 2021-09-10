@@ -11,6 +11,10 @@ various metadata as outputs.
 
 ## Outputs
 
+### `image_name`
+
+The name of the image file.
+
 ### `image_sha256`
 
 The SHA256 hash of the image.
@@ -19,7 +23,7 @@ The SHA256 hash of the image.
 
 The size of the image in bytes.
 
-### `zip`
+### `zip_name`
 
 The name of the zip file.
 
