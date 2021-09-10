@@ -16,7 +16,7 @@ outputs:
     value: "${{ steps.package-image.outputs.image_size }}"
   zip_name:
     description: "The name of the packaged image zip"
-    value: "${{ steps.package-image.outputs.zip }}"
+    value: "${{ steps.package-image.outputs.zip_name }}"
   zip_path:
     description: "The path of the package image zip"
     value: "${{ steps.package-image.outputs.zip_path }}"
