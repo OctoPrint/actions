@@ -25,7 +25,7 @@ runs:
           const condition = core.getInput("condition");
           const issue = core.getInput("issue");
 
-          github.rest.issues.listComments({
+          github.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue,
@@ -37,7 +37,7 @@ runs:
 
               if (comment) {
                 // update
-                github.rest.issues.updateComment({
+                github.issues.updateComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   comment_id: comment.id,
@@ -45,7 +45,7 @@ runs:
                 });
               } else {
                 // add
-                github.rest.issues.createComment({
+                github.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue,
@@ -56,7 +56,7 @@ runs:
             } else if (comment) {
               // condition evaluates false but there's a comment, we need to delete the comment
 
-              github.rest.issues.deleteComment({
+              github.issues.deleteComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: comment.id
