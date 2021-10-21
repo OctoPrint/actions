@@ -41,15 +41,7 @@ runs:
           if (CONDITION === "true") {
             // condition is true, we need to add or update a comment
 
-            if (comment) {
-              // update
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: comment.id,
-                body: BODY
-              });
-            } else {
+            if (!comment) {
               // add
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
