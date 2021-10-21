@@ -12,18 +12,18 @@ runs:
   using: "composite"
   steps:
     - uses: actions/github-script@v5
+      env:
+        BODY: "${{ inputs.body }}"
       with:
         script: |
-          console.log("ENV", process.env);
-
-          let comment = core.getInput("body");
-          console.log("comment", comment);
+          const { COMMENT } = process.env;
+          console.log("comment", COMMENT);
 
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
-          const matches = comment.matchAll(bundleRegex);
+          const matches = COMMENT.matchAll(bundleRegex);
 
           core.exportVariable("BUNDLE_COUNT", matches.length);
     - run: |
-        echo "::set-output name=count::$BUNDLE_COUNT"
+        echo "::set-output name=count::${{ env.BUNDLE_COUNT }}"
       id: check
       shell: bash
