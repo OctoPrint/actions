@@ -11,7 +11,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/github-script@v2
+    - uses: actions/github-script@v5
       id: check
       with:
         script: |
