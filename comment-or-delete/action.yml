@@ -19,7 +19,6 @@ runs:
   steps:
     - uses: actions/github-script@v2
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const marker = core.getInput("marker");
           const body = core.getInput("body");

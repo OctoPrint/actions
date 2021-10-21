@@ -14,7 +14,6 @@ runs:
     - uses: actions/github-script@v2
       id: check
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           let comment = core.getInput("body");
 
