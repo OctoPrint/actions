@@ -19,6 +19,10 @@ runs:
   steps:
     - uses: actions/github-script@v2
       with:
+        issue_number: ${{ inputs.issue_number }}
+        marker: ${{ inputs.marker }}
+        body: ${{ inputs.body }}
+        condition: ${{ inputs.condition }}
         script: |
           const marker = core.getInput("marker");
           const body = core.getInput("body");

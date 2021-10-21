@@ -14,8 +14,10 @@ runs:
     - uses: actions/github-script@v2
       id: check
       with:
+        body: "${{ input.body }}"
         script: |
           let comment = core.getInput("body");
+          console.log("comment", comment);
 
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
           const matches = comment.matchAll(bundleRegex);
