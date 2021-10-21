@@ -1,18 +1,17 @@
-name: "Check for bundle"
-description: "Checks a comment body whether it contains at least one systeminfo bundle"
+name: "Count bundles"
+description: "Counts the number of bundle links in a comment body"
 inputs:
   body:
     description: "The comment body"
     required: true
 outputs:
-  result:
-    description: "true if at least one uploaded bundle is present, false otherwise"
-    value: "${{ env.CHECK_BUNDLE_RESULT }}"
+  count:
+    description: "Count of found bundles"
+    value: "${{ steps.check.outputs.count }}"
 runs:
   using: "composite"
   steps:
     - uses: actions/github-script@v5
-      id: check
       with:
         script: |
           console.log("ENV", process.env);
@@ -23,4 +22,8 @@ runs:
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
           const matches = comment.matchAll(bundleRegex);
 
-          core.exportVariable("CHECK_BUNDLE_RESULT", matches.length > 0);
+          core.exportVariable("BUNDLE_COUNT", matches.length);
+    - run: |
+        echo "::set-output name=count::$BUNDLE_COUNT"
+      id: check
+      shell: bash
