@@ -23,4 +23,4 @@ runs:
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
           const matches = comment.matchAll(bundleRegex);
 
-          core.setExportVariable("CHECK_BUNDLE_RESULT", matches.length > 0);
+          core.exportVariable("CHECK_BUNDLE_RESULT", matches.length > 0);
