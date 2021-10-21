@@ -1,8 +1,8 @@
 name: "Comment or delete"
 description: "Adds a comment to an issue or deletes it based on a provided condition"
 inputs:
-  issue:
-    description: "The issue id"
+  issue_number:
+    description: "The issue's number"
     required: true
   marker:
     description: "The comment marker"
@@ -23,14 +23,17 @@ runs:
           const marker = core.getInput("marker");
           const body = core.getInput("body");
           const condition = core.getInput("condition");
-          const issue = core.getInput("issue");
+          const issue_number = core.getInput("issue");
+
+          console.log("Issue number", issue_number);
 
           github.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: issue,
+            issue_number: issue_number,
           }).then(function(comments) {
             const comment = comments.data.find(c => c.user.login === "github-actions" && c.body.includes(marker));
+            console.log("Comment", comment);
 
             if (condition) {
               // condition evaluates true, we need to add or update a comment
@@ -48,7 +51,7 @@ runs:
                 github.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: issue,
+                  issue_number: issue_number,
                   body: body
                 });
               }
