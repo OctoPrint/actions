@@ -1,0 +1,24 @@
+name: "Check for bundle"
+description: "Checks a comment body whether it contains at least one systeminfo bundle"
+inputs:
+  body:
+    description: "The comment body"
+    required: true
+outputs:
+  result:
+    description: "true if at least one uploaded bundle is present, false otherwise"
+    value: "${{ steps.check.outputs.result }}"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@v2
+      id: check
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          let comment = core.getInput("body");
+
+          const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
+          const matches = comment.matchAll(bundleRegex);
+
+          core.setOutput("result", matches.length > 0);
