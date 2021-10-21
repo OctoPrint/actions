@@ -19,24 +19,26 @@ runs:
   steps:
     - uses: actions/github-script@v2
       with:
+        env:
+          MARKER: "${{ inputs.marker }}"
+          BODY: "${{ inputs.body }}"
+          CONDITION: "${{ inputs.condition }}"
+          ISSUE_NUMBER: "${{ inputs.issue_number }}"
         script: |
-          const marker = core.getInput("marker");
-          const body = core.getInput("body");
-          const condition = core.getInput("condition");
-          const issue_number = core.getInput("issue");
+          const { MARKER, BODY, CONDITION, ISSUE_NUMBER } = process.env;
 
-          console.log("Issue number", issue_number);
+          console.log("Issue number", ISSUE_NUMBER);
 
           github.issues.listComments({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: issue_number,
+            issue_number: ISSUE_NUMBER,
           }).then(function(comments) {
-            const comment = comments.data.find(c => c.user.login === "github-actions" && c.body.includes(marker));
+            const comment = comments.data.find(c => c.user.login === "github-actions" && c.body.includes(MARKER));
             console.log("Comment", comment);
 
-            if (condition) {
-              // condition evaluates true, we need to add or update a comment
+            if (CONDITION === "true") {
+              // condition is true, we need to add or update a comment
 
               if (comment) {
                 // update
@@ -44,15 +46,15 @@ runs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   comment_id: comment.id,
-                  body: body
+                  body: BODY
                 });
               } else {
                 // add
                 github.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: issue_number,
-                  body: body
+                  issue_number: ISSUE_NUMBER,
+                  body: BODY
                 });
               }
 

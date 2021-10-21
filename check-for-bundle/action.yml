@@ -7,7 +7,7 @@ inputs:
 outputs:
   result:
     description: "true if at least one uploaded bundle is present, false otherwise"
-    value: "${{ steps.check.outputs.result }}"
+    value: "${{ env.CHECK_BUNDLE_RESULT }}"
 runs:
   using: "composite"
   steps:
@@ -23,4 +23,4 @@ runs:
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
           const matches = comment.matchAll(bundleRegex);
 
-          core.setOutput("result", matches.length > 0);
+          core.setExportVariable("CHECK_BUNDLE_RESULT", matches.length > 0);
