@@ -16,11 +16,11 @@ runs:
         BODY: "${{ inputs.body }}"
       with:
         script: |
-          const { COMMENT } = process.env;
-          console.log("comment", COMMENT);
+          const { BODY } = process.env;
+          console.log("comment", BODY);
 
           const bundleRegex = /\[(octoprint-systeminfo-\d{14}\.zip)\]\(([^)]+)\)/g;
-          const matches = COMMENT.matchAll(bundleRegex);
+          const matches = BODY.matchAll(bundleRegex);
 
           core.exportVariable("BUNDLE_COUNT", matches.length);
     - run: |
