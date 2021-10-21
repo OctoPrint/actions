@@ -14,8 +14,9 @@ runs:
     - uses: actions/github-script@v2
       id: check
       with:
-        body: "${{ inputs.body }}"
         script: |
+          console.log("ENV", process.env);
+
           let comment = core.getInput("body");
           console.log("comment", comment);
 
