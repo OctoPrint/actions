@@ -18,12 +18,12 @@ runs:
   using: "composite"
   steps:
     - uses: actions/github-script@v5
+      env:
+        MARKER: "${{ inputs.marker }}"
+        BODY: "${{ inputs.body }}"
+        CONDITION: "${{ inputs.condition }}"
+        ISSUE_NUMBER: "${{ inputs.issue_number }}"
       with:
-        env:
-          MARKER: "${{ inputs.marker }}"
-          BODY: "${{ inputs.body }}"
-          CONDITION: "${{ inputs.condition }}"
-          ISSUE_NUMBER: "${{ inputs.issue_number }}"
         script: |
           const { MARKER, BODY, CONDITION, ISSUE_NUMBER } = process.env;
 
