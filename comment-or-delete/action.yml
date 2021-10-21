@@ -22,7 +22,7 @@ runs:
         script: |
           const marker = core.getInput("marker");
           const body = core.getInput("body");
-          const condition = core.getInput("condition").toLower() === "true";
+          const condition = core.getInput("condition");
           const issue = core.getInput("issue");
 
           github.rest.issues.listComments({
