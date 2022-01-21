@@ -35,6 +35,10 @@ If set, the name to give the stable release. Otherwise the name from the snippet
 
 If set, the name to give the prerelease. Otherwise the name from the snippet will be used.
 
+### `ignoreRegex`
+
+If set and matches either a release's name or description, the release will be ignored.
+
 ## Usage
 
 `.github/workflows/issue-cleanup.yml`:
@@ -60,4 +64,22 @@ jobs:
         nameStable: "OctoPi (stable)"
         namePrerelease: "OctoPi (prerelease)"
     # ...
+```
+
+## Development
+
+### Local testing
+
+```
+export INPUT_TOKEN=...
+export INPUT_OWNER=...
+export INPUT_REPO=...
+export INPUT_OUTPUT=...
+node src/index.js
+```
+
+### Build
+
+```
+npx run build
 ```

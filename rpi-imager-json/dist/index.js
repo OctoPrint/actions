@@ -6180,12 +6180,14 @@ const github = __nccwpck_require__(908);
 const fs = __nccwpck_require__(747);
 const fetch = __nccwpck_require__(295);
 
-async function fetchReleases(token, owner, repo) {
+async function fetchReleases(token, owner, repo, ignoreRegex) {
     const octokit = github.getOctokit(token);
     const query = `query {
         repository(owner:"${owner}", name:"${repo}") {
           releases(first:100, orderBy: {field:CREATED_AT, direction:DESC}) {
             nodes {
+              name
+              description
               tag {
                 name
               }
@@ -6205,6 +6207,11 @@ async function fetchReleases(token, owner, repo) {
     let stable = null;
     let prerelease = null;
     for (const release of result.repository.releases.nodes) {
+        if ((release.name && release.name.match(ignoreRegex)) || (release.description && release.description.match(ignoreRegex))) {
+            // name or description includes ignore marker, we skip this release
+            continue;
+        }
+
         if (stable === null && prerelease === null && release.isPrerelease) {
             // newer prerelease than current stable, we take the latest
             prerelease = release;
@@ -6262,8 +6269,9 @@ async function run() {
     const output = core.getInput('output', { required: true });
     const nameStable = core.getInput('nameStable') || null;
     const namePrerelease = core.getInput('namePrerelease') || null;
+    const ignoreRegex = core.getInput('ignoreRegex') || null;
 
-    const releases = await fetchReleases(token, owner, repo);
+    const releases = await fetchReleases(token, owner, repo, ignoreRegex);
     const data = await generate(releases, nameStable, namePrerelease);
     if (data !== null) {
         await serialize(data, output);
