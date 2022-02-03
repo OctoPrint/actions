@@ -35,6 +35,10 @@ If set, the name to give the stable release. Otherwise the name from the snippet
 
 If set, the name to give the prerelease. Otherwise the name from the snippet will be used.
 
+### `initFormat`
+
+If set, the `init_format` to set on the entries. Otherwise whatever is in the snippet will be used.
+
 ### `ignoreRegex`
 
 If set and matches either a release's name or description, the release will be ignored.
@@ -81,5 +85,5 @@ node src/index.js
 ### Build
 
 ```
-npx run build
+npm run build
 ```

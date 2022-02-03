@@ -49,22 +49,25 @@ async function fetchReleases(token, owner, repo, ignoreRegex) {
     return { stable, prerelease };
 }
 
-function rename(release, name) {
+function adjust(release, name, initFormat) {
     if (name !== null) {
         release.description = release.name;
         release.name = name;
     }
+    if (initFormat !== null) {
+        release.init_format = initFormat;
+    }
     return release;
 }
 
-async function generate(releases, nameStable, namePrerelease) {
+async function generate(releases, nameStable, namePrerelease, initFormat) {
     const { stable, prerelease } = releases;
     if (stable === null || stable.releaseAssets.nodes.length === 0) {
         return null;
     }
 
-    const stableData = rename(await fetch(stable.releaseAssets.nodes[0].downloadUrl).then(r => r.json()), nameStable);
-    
+    const stableData = adjust(await fetch(stable.releaseAssets.nodes[0].downloadUrl).then(r => r.json()), nameStable, initFormat);
+
     const data = { 
         os_list : [
             stableData
@@ -72,7 +75,7 @@ async function generate(releases, nameStable, namePrerelease) {
     };
     
     if (prerelease !== null && prerelease.releaseAssets.nodes.length > 0) {
-        const prereleaseData = rename(await fetch(prerelease.releaseAssets.nodes[0].downloadUrl).then(r => r.json()), namePrerelease);
+        const prereleaseData = adjust(await fetch(prerelease.releaseAssets.nodes[0].downloadUrl).then(r => r.json()), namePrerelease, initFormat);
         data.os_list.push(prereleaseData);
     }
 
@@ -93,9 +96,10 @@ async function run() {
     const nameStable = core.getInput('nameStable') || null;
     const namePrerelease = core.getInput('namePrerelease') || null;
     const ignoreRegex = core.getInput('ignoreRegex') || null;
+    const initFormat = core.getInput('initFormat') || null;
 
     const releases = await fetchReleases(token, owner, repo, ignoreRegex);
-    const data = await generate(releases, nameStable, namePrerelease);
+    const data = await generate(releases, nameStable, namePrerelease, initFormat);
     if (data !== null) {
         await serialize(data, output);
     }
