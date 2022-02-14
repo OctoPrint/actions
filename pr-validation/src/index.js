@@ -12,7 +12,7 @@ function getPrNumber() {
 }
 
 async function fetchContent(client, path) {
-  const response = await client.repos.getContent({
+  const response = await client.rest.repos.getContent({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     path: path
@@ -222,7 +222,7 @@ async function run() {
 
         if (config.create_review) {
           // create a review
-          client.pulls.createReview({
+          client.rest.pulls.createReview({
             owner: owner,
             repo: repo,
             pull_number: number,
@@ -253,7 +253,7 @@ async function run() {
         }
 
         if (setLabels) {
-          client.issues.setLabels({
+          client.rest.issues.setLabels({
             owner: owner,
             repo: repo,
             issue_number: number,
@@ -279,7 +279,7 @@ async function run() {
         }
 
         if (setLabels) {
-          client.issues.setLabels({
+          client.rest.issues.setLabels({
             owner: owner,
             repo: repo,
             issue_number: number,
