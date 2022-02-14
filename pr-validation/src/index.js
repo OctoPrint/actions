@@ -213,7 +213,7 @@ async function run() {
     // it only makes sense to check can-modify if the PR isn't from ourselves
     const effective_check_can_modify = check_can_modify && pr.headRepository.owner.login !== owner && pr.author.login !== owner;
 
-    const problems = checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, effective_check_can_modify);
+    const problems = checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources, effective_check_can_modify);
 
     if (problems.length) {
       // Problems were detected, review/post comment and label accordingly
