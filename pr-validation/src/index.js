@@ -60,7 +60,7 @@ async function fetchPr(client, owner, repo, number) {
   return pr;
 }
 
-function checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify) {
+function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify) {
   const source = pr.headRefName;
   const target = pr.baseRefName;
   console.log("PR source is " + source);
@@ -74,7 +74,7 @@ function checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_
     core.error("PR has an empty description");
   }
 
-  if (check_can_modify && !pr.maintainerCanModify && (pr.headRepository.owner.login !== owner || pr.headRepository.name !== repo)) {
+  if (check_can_modify && !pr.maintainerCanModify) {
     problems.push("You have not allowed the maintainers to modify your PR. In order "
                 + "to review and merge PRs most efficiently, we require that all PRs "
                 + "grant maintainer edit access before we review them. For information "
@@ -207,7 +207,10 @@ async function run() {
     console.log("Forbidden sources: " + forbidden_sources.join(", "));
     console.log("Check if maintainer can modify: " + check_can_modify);
 
-    const problems = checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify);
+    // it only makes sense to check can-modify if the PR isn't from ourselves
+    const effective_check_can_modify = check_can_modify && pr.headRepository.owner.login !== owner && pr.author.login !== owner;
+
+    const problems = checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, effective_check_can_modify);
 
     if (problems.length) {
       // Problems were detected, review/post comment and label accordingly
