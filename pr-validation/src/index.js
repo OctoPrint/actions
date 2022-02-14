@@ -54,7 +54,10 @@ async function fetchPr(client, owner, repo, number) {
 
   const variables = { number: number };
   const result = await client.graphql(query, variables);
-  return result.repository.pullRequest;
+
+  const pr = result.repository.pullRequest;
+  console.log("PR:", pr);
+  return pr;
 }
 
 function checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify) {
