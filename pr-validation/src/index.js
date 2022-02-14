@@ -29,9 +29,34 @@ async function readConfig(client, path) {
   return config;
 }
 
-function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources) {
-  const source = pr.head.ref;
-  const target = pr.base.ref;
+async function fetchPr(client, owner, repo, number) {
+  const query = `query { 
+    repository(owner:"${owner}", name: "${repo}") { 
+      pullRequest(number: ${number}) {
+        author {
+          login
+        },
+        body,
+        baseRefName,
+        headRefName,
+        maintainerCanModify,
+        labels(first:100) {
+          nodes {
+            name
+          }
+        },
+      }
+    }
+  }`;
+
+  const variables = { number: number };
+  const result = await client.graphql(query, variables);
+  return result.repository.pullRequest;
+}
+
+function checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify) {
+  const source = pr.headRefName;
+  const target = pr.baseRefName;
   console.log("PR source is " + source);
   console.log("PR target is " + target);
 
@@ -41,6 +66,14 @@ function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources) {
     problems.push("The PR does have an empty description. Please explain what "
                 + "the PR does, how you've tested your changes, etc.");
     core.error("PR has an empty description");
+  }
+
+  if (check_can_modify && !pr.maintainerCanModify && (pr.headRepository.owner.login !== owner || pr.headRepository.name !== repo)) {
+    problems.push("You have not allowed the maintainers to modify your PR. In order "
+                + "to review and merge PRs most efficiently, we require that all PRs "
+                + "grant maintainer edit access before we review them. For information "
+                + "on how to do this, [see GitHub's documentation](https://docs.github.com/en/github/collaborating-with-pull-requests/working-with-forks/allowing-changes-to-a-pull-request-branch-created-from-a-fork).");
+    core.error("PR does not have maintainer edit access");
   }
 
   if (forbidden_sources.includes(source)) {
@@ -64,7 +97,6 @@ function checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources) {
     core.error("PR's target branch is among the forbidden target branches");
   }
 
-
   return problems;
 }
 
@@ -81,28 +113,40 @@ async function run() {
 
     const number = getPrNumber();
     if (!number) {
-      console.log("Could not get pull request number from context, exiting");
+      const msg = "Could not get pull request number from context, exiting";
+      console.log(msg);
+      core.setFailed(msg);
       return;
     }
 
     const client = github.getOctokit(token);
 
+    // get config
+
     const config = await readConfig(client, configPath);
     if (!config) {
-      console.log("Could not get configuration from repository, existing");
+      const msg = "Could not get configuration from repository, exiting";
+      console.log(msg);
+      core.setFailed(msg);
       return;
     }
     
-    // Get current PR data (the data in the context might be outdated)
-    const { data: pr } = await client.pulls.get({
-      owner: owner,
-      repo: repo,
-      pull_number: number
-    });
+    // get PR
+
+    const pr = await fetchPr(client, owner, repo, number);
+    if (!pr) {
+      const msg = "Could not fetch PR, exiting";
+      console.log(msg);
+      core.setFailed(msg);
+      return;
+    }
+
+    // eval labels
 
     const problem_label = config.problem_label;
     const approve_label = config.approve_label;
     const ignore_label = config.ignore_label;
+    const check_can_modify = config.check_can_modify || false;
 
     let allowed_targets = config.allowed_targets;
     if (!allowed_targets) allowed_targets = [];
@@ -114,7 +158,7 @@ async function run() {
     if (!forbidden_sources) forbidden_sources = [];
 
     let labels = [];
-    pr.labels.forEach(label => { labels.push(label.name) });
+    pr.labels.nodes.forEach(node => { labels.push(node.name) });
     console.log("PR labels are " + labels.join(", "));
 
     if (labels.includes(ignore_label)) {
@@ -149,14 +193,18 @@ async function run() {
       }
     }
 
+
+    // still there? check PR
+
     console.log("Allowed targets: " + allowed_targets.join(", "));
     console.log("Forbidden targets: " + forbidden_targets.join(", "));
     console.log("Forbidden sources: " + forbidden_sources.join(", "));
+    console.log("Check if maintainer can modifiy: " + check_can_modify);
 
-    const problems = checkPr(pr, allowed_targets, forbidden_targets, forbidden_sources);
+    const problems = checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify);
 
     if (problems.length) {
-      // Problems were detected, post comment and label accordingly
+      // Problems were detected, review/post comment and label accordingly
       if (dryrun) {
         core.info("Would now mark PR as problematic");
       } else {
@@ -172,12 +220,26 @@ async function run() {
                   + "and make sure that the PR follows them. Thank you!\n\n"
                   + "*I'm just a bot 🤖 that does automatic checks, a human will intervene if I've made a mistake.*";
 
-        client.issues.createComment({
-          owner: owner,
-          repo: repo,
-          issue_number: number,
-          body: comment
-        });
+        if (config.create_review) {
+          // create a review
+          client.pulls.createReview({
+            owner: owner,
+            repo: repo,
+            pull_number: number,
+            event: "REQUEST_CHANGES",
+            body: comment
+          });
+        } else {
+          // only create a comment
+          client.rest.issues.createComment({
+            owner: owner,
+            repo: repo,
+            issue_number: number,
+            body: comment
+          });
+        }
+
+        // add and remove labels as needed
 
         let setLabels = false;
 
