@@ -33,8 +33,11 @@ async function fetchPr(client, owner, repo, number) {
   const query = `query { 
     repository(owner:"${owner}", name: "${repo}") { 
       pullRequest(number: ${number}) {
-        author {
-          login
+        headRepository {
+          owner {
+            login
+          },
+          name
         },
         body,
         baseRefName,
@@ -199,7 +202,7 @@ async function run() {
     console.log("Allowed targets: " + allowed_targets.join(", "));
     console.log("Forbidden targets: " + forbidden_targets.join(", "));
     console.log("Forbidden sources: " + forbidden_sources.join(", "));
-    console.log("Check if maintainer can modifiy: " + check_can_modify);
+    console.log("Check if maintainer can modify: " + check_can_modify);
 
     const problems = checkPr(pr, owner, repo, allowed_targets, forbidden_targets, forbidden_sources, check_can_modify);
 
