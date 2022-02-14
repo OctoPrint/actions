@@ -33,6 +33,9 @@ async function fetchPr(client, owner, repo, number) {
   const query = `query { 
     repository(owner:"${owner}", name: "${repo}") { 
       pullRequest(number: ${number}) {
+        author {
+          login
+        },
         headRepository {
           owner {
             login
