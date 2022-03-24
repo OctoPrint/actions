@@ -43,9 +43,15 @@ If set, the `init_format` to set on the entries. Otherwise whatever is in the sn
 
 If set and matches either a release's name or description, the release will be ignored.
 
+### `versionRegex`
+
+If set, used to extract version numbers from a release's tag via named groups. These versions will then
+be used to determine whether prereleases predating the latest stable release are possibly
+actually still to be included as they contain newer software versions (and are just earlier builds).
+
 ## Usage
 
-`.github/workflows/issue-cleanup.yml`:
+`.github/workflows/generate.yml`:
 
 ```yaml
 name: "Generate rpi-imager.json"
@@ -64,9 +70,12 @@ jobs:
         token: "${{ secrets.GITHUB_TOKEN }}"
         owner: OctoPrint
         repo: OctoPi-UpToDate
+        ignoreRegex: "mark:untested"
+        versionRegex: "^(?<octopi>.*?)-(?<octoprint>.*?)-\\d+$"
         output: ./files/rpi-imager.json
         nameStable: "OctoPi (stable)"
         namePrerelease: "OctoPi (prerelease)"
+        initFormat: systemd
     # ...
 ```
 
