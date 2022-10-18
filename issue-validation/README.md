@@ -1,3 +1,5 @@
+> 🛑 **No longer used as replaced by issue forms, and as such unmaintained and considered archived**
+
 # Issue Validation Action
 
 This action performs some validation checks against incoming issues.

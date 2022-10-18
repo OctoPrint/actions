@@ -24,5 +24,5 @@ inputs:
   versionRegex:
     description: "A regex to extract versions from the tag to compare when looking for newer prereleases published before latest stable"
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/index.js"
