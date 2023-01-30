@@ -24,6 +24,6 @@ runs:
 
           core.exportVariable("BUNDLE_COUNT", matches.length);
     - run: |
-        echo "::set-output name=count::${{ env.BUNDLE_COUNT }}"
+        echo "count=${{ env.BUNDLE_COUNT }}" >> $GITHUB_OUTPUT
       id: check
       shell: bash

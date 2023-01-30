@@ -1,0 +1,23 @@
+{
+  "name": "actions",
+  "version": "1.0.0",
+  "description": "This repository hosts various GitHub Actions utilized by the OctoPrint project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max246/actions.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/max246/actions/issues"
+  },
+  "homepage": "https://github.com/max246/actions#readme",
+  "dependencies": {
+    "package.json": "^2.0.1"
+  }
+}
