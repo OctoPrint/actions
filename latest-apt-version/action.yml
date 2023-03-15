@@ -1,0 +1,14 @@
+name: 'Latest APT version'
+description: 'Query the latest version of a package in an APT repository'
+author: 'foosel'
+inputs:
+  package:
+    description: 'The name of the package to query'
+    required: true
+  url:
+    description: 'The URL of the repository to query, path to Packages file'
+    required: true
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

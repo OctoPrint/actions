@@ -1,0 +1,28 @@
+{
+  "name": "latest-apt-version",
+  "version": "1.0.0",
+  "description": "This action determines the latest version of a package in a provided apt repo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx ncc build src/index.js -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoPrint/actions.git"
+  },
+  "author": "Gina Häußge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OctoPrint/actions/issues"
+  },
+  "homepage": "https://github.com/OctoPrint/actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "apt-parser": "^1.5.1",
+    "axios": "^1.3.4"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.36.1"
+  }
+}
