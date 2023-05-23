@@ -28,6 +28,8 @@ inputs:
   zip_size:
     description: "The size of the zip"
     required: true
+  init_format:
+    description: "The init format of the image, defaults to systemd"
 runs:
   using: "composite"
   steps:
@@ -45,6 +47,11 @@ runs:
         URL="${{ inputs.url }}"
         DATE=`date '+%Y-%m-%d'`
 
+        INIT_FORMAT="${{ inputs.init_format }}"
+        if [ -z "$INIT_FORMAT" ]; then
+          INIT_FORMAT="systemd"
+        fi
+
         cat > "$OUTPUT" <<EOF
         {
           "name": "$NAME",
@@ -55,7 +62,8 @@ runs:
           "extract_size": $IMAGE_SIZE,
           "extract_sha256": "$IMAGE_SHA256",
           "image_download_size": $ZIP_SIZE,
-          "image_download_sha256": "$ZIP_SHA256"
+          "image_download_sha256": "$ZIP_SHA256",
+          "init_format": "$INIT_FORMAT"
         }
         EOF
       shell: bash
