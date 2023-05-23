@@ -1,0 +1,25 @@
+{
+  "name": "Fetches rpi-imager snippet",
+  "version": "1.0.0",
+  "description": "Fetches an rpi-imager.json from the latest GitHub release matching parameters provided in the action inputs.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx @vercel/ncc build src/index.js -o dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OctoPrint/actions.git"
+  },
+  "keywords": [],
+  "author": "Gina Häußge",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OctoPrint/actions/issues"
+  },
+  "homepage": "https://github.com/OctoPrint/actions/tree/master/fetch-rpi-imager-snippet#readme",
+  "dependencies": {
+    "@actions/core": "^1.5.0",
+    "@actions/github": "^5.0.0",
+    "node-fetch": "^2.6.1"
+  }
+}

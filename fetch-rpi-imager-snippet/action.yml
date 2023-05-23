@@ -1,0 +1,25 @@
+name: "Fetches rpi-imager snippet"
+description: "Fetches an rpi-imager.json from the latest GitHub release matching parameters provided in the action inputs."
+inputs:
+  token:
+    description: "GitHub token"
+    required: true
+  owner:
+    description: "The repository owner"
+    required: true
+  repo:
+    description: "The repository name"
+    required: true
+  output:
+    description: "The output file"
+    required: true
+  includePrereleases:
+    description: "Whether to include prereleases"
+    default: false
+  matchRegex:
+    description: "A match regex to scan for in the release name & description"
+  ignoreRegex:
+    description: "An ignore regex to scan for in the release name & description"
+runs:
+  using: "node16"
+  main: "dist/index.js"
