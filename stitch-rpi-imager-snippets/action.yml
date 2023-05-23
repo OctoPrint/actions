@@ -1,0 +1,29 @@
+name: "Stitch rpi-imager snippets"
+description: "Stitches multiple rpi-imager snippets together into a final one."
+inputs:
+  snippets:
+    description: "The paths of snippets to stitch together, space separated list"
+    required: true
+  output:
+    description: "The output file"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: "🆕 Stitch rpi-imager.json together from snippets"
+      run: |
+        set -e
+
+        OUTPUT="${{ inputs.output }}"
+        SNIPPETS="${{ inputs.snippets }}"
+
+        jq --null-input '.os_list=[]' > $OUTPUT
+        for snippet in $SNIPPETS; do
+          if [ ! -f "$snippet" ]; then
+            echo "Snippet $snippet does not exist, skipping"
+            continue
+          fi
+          echo "Processing $snippet"
+          jq --argjson snippet "$(<$snippet)" '.os_list += [$snippet]' $OUTPUT > $OUTPUT.tmp && mv $OUTPUT.tmp $OUTPUT
+        done
+      shell: bash
