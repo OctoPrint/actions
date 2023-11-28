@@ -42,11 +42,19 @@ Supposed to be used in tandem with [OctoPrint/actions/package-rpi-image](https:/
 
 **Required** The size of the zip file in bytes.
 
+### `devices`
+
+**Optional** The devices the image is compatible with. Needs to be a comma separated list with device identifiers as found [here](https://downloads.raspberrypi.org/os_list_imagingutility_v3.json). If not provided, the `devices` field will be omitted from the generated snippet.
+
+### `init_format`
+
+**Optional** The init format of the image, defaults to systemd.
+
 ## Usage
 
 ```yaml
 - name: "🆕 Generate rpi-imager.json snippet"
-    uses: OctoPrint/actions/generate-rpi-imager-json@main
+    uses: OctoPrint/actions/rpi-imager-snippet@main
     with:
         name: "${{ env.RELEASE_NAME }}"
         description: "A Raspberry Pi distribution for 3d printers. Ships OctoPrint ${{ env.OCTOPRINT_VERSION }} out-of-the-box."
@@ -57,4 +65,5 @@ Supposed to be used in tandem with [OctoPrint/actions/package-rpi-image](https:/
         image_size: ${{ steps.package-image.outputs.image_size }}
         zip_sha256: ${{ steps.package-image.outputs.zip_sha256 }}
         zip_size: ${{ steps.package-image.outputs.zip_size }}
+        devices: "pi4-32bit,pi3-32bit,pi2-32bit,pi1-32bit"
 ```

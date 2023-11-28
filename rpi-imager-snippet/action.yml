@@ -28,6 +28,8 @@ inputs:
   zip_size:
     description: "The size of the zip"
     required: true
+  devices:
+    description: "Which Pis this image supports, comma separated, will be left out if not provided"
   init_format:
     description: "The init format of the image, defaults to systemd"
 runs:
@@ -42,15 +44,20 @@ runs:
         OUTPUT="${{ inputs.output }}"
 
         NAME="${{ inputs.name }}"
-        DESCRIPTIONS="${{ inputs.description }}"
+        DESCRIPTION="${{ inputs.description }}"
         ICON="${{ inputs.icon }}"
         URL="${{ inputs.url }}"
         DATE=`date '+%Y-%m-%d'`
 
         INIT_FORMAT="${{ inputs.init_format }}"
+        DEVICES_RAW="${{ inputs.devices }}"
+
         if [ -z "$INIT_FORMAT" ]; then
           INIT_FORMAT="systemd"
         fi
+
+        IFS=', ' read -r -a DEVICES_ARR <<< "$DEVICES_RAW"
+        DEVICES=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${DEVICES_ARR[@]}")
 
         cat > "$OUTPUT" <<EOF
         {
@@ -63,6 +70,15 @@ runs:
           "extract_sha256": "$IMAGE_SHA256",
           "image_download_size": $ZIP_SIZE,
           "image_download_sha256": "$ZIP_SHA256",
+        EOF
+
+        if [ -n "$DEVICES_RAW" ]; then
+          cat >> "$OUTPUT" <<EOF
+            "devices": $DEVICES,
+        EOF
+        fi
+
+        cat >> "$OUTPUT" <<EOF
           "init_format": "$INIT_FORMAT"
         }
         EOF
