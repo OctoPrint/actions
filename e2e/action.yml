@@ -6,8 +6,12 @@ inputs:
     description: "OctoPrint ref to install and run tests for"
     required: false
     default: master
+  octoprint:
+    description: "OctoPrint dep to install via pip"
+    required: false
+    default: "."
   deps:
-    description: "Additional dependencies to install, e.g. plugins"
+    description: "Additional dependencies to install via pip, e.g. plugins"
     required: false
     default: ""
   python:
@@ -35,7 +39,7 @@ runs:
       working-directory: ./OctoPrint/
       shell: bash
       run: |
-        pip install .
+        pip install ${{ inputs.octoprint }}
         [ -n "${{ inputs.deps }}" ] && pip install --force-reinstall ${{ inputs.deps }}
 
     - name: 🏗 Create base config for test server
