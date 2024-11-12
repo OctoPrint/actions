@@ -1,0 +1,112 @@
+name: "OctoPrint E2E Test"
+description: "Runs OctoPrint's E2E tests"
+
+inputs:
+  ref:
+    description: "OctoPrint ref to install and run tests for"
+    required: false
+    default: master
+  deps:
+    description: "Additional dependencies to install, e.g. plugins"
+    required: false
+    default: ""
+  python:
+    description: "Python version to use"
+    required: false
+    default: "3.12"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "⬇ Checkout OctoPrint with E2E tests"
+      uses: actions/checkout@v4
+      with:
+        repository: OctoPrint/OctoPrint
+        ref: ${{ inputs.ref }}
+        fetch-depth: 0
+        path: OctoPrint
+
+    - name: 🏗 Set up Python ${{ inputs.python }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python }}
+
+    - name: 🏗 Install OctoPrint
+      working-directory: ./OctoPrint/
+      run: |
+        pip install .
+        [ -n "${{ inputs.deps }}" ] && pip install --force-reinstall ${{ inputs.deps }}
+
+    - name: 🏗 Create base config for test server
+      run: |
+        mkdir e2econfig
+        cp -r OctoPrint/.github/fixtures/with_acl/* e2econfig
+
+    - name: 🏗 Install mfa dummy plugin if available
+      run: |
+        mfa_dummy="OctoPrint/.github/fixtures/mfa_dummy"
+        if [ -f "$mfa_dummy" ]; then
+          mkdir -p e2econfig/plugins
+          cp -r "$mfa_dummy" "e2econfig/plugins/mfa_dummy"
+        fi
+
+    - name: 🏗 Prepare Playwright env
+      working-directory: ./OctoPrint/tests/playwright
+      run: |
+        npm ci
+        PLAYWRIGHT_VERSION=$(npm ls --json @playwright/test | jq --raw-output '.dependencies["@playwright/test"].version')
+        echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+    - name: 🧰 Cache Playwright browser binaries
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: "~/.cache/ms-playwright"
+        key: "${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}"
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+
+    - name: 🏗 Install Playwright browser binaries & OS dependencies
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      working-directory: ./OctoPrint/tests/playwright
+      run: |
+        sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+        npx playwright install --with-deps
+
+    - name: 🏗 Install Playwright OS dependencies
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      working-directory: ./OctoPrint/tests/playwright
+      run: |
+        sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+        npx playwright install-deps
+
+    - name: 🎭 Run Playwright
+      working-directory: ./OctoPrint/tests/playwright
+      run: |
+        npx playwright test
+      env:
+        OCTOPRINT_SERVER_BASE: ${{ github.workspace }}/e2econfig
+        TEST_MFA: true
+
+    - name: 🔎 Check octoprint.log for errors
+      run: |
+        log=${{ github.workspace }}/e2econfig/logs/octoprint.log
+        if grep "\- ERROR \-" $log; then
+          echo "::error::Errors were logged to octoprint.log"
+          grep -Pazo '(?m)^\N+\- ERROR \-\N*\n(^\N*?\n)*?(?=\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \- )' $log
+          exit 1
+        fi
+
+    - name: ⬆ Upload Playwright report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report-py${{ inputs.python }}
+        path: ${{ github.workspace }}/OctoPrint/tests/playwright/playwright-report
+
+    - name: ⬆ Upload OctoPrint logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: octoprint-logs-py${{ inputs.python }}
+        path: ${{ github.workspace }}/e2econfig/logs
