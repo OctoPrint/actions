@@ -18,6 +18,10 @@ inputs:
     description: "Python version to use"
     required: false
     default: "3.12"
+  suffix:
+    description: "Suffix to use for the generated artifacts"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -113,12 +117,12 @@ runs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report-py${{ inputs.python }}
+        name: playwright-report${{ inputs.suffix }}
         path: ${{ github.workspace }}/OctoPrint/tests/playwright/playwright-report
 
     - name: ⬆ Upload OctoPrint logs
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: octoprint-logs-py${{ inputs.python }}
+        name: octoprint-logs${{ inputs.suffix }}
         path: ${{ github.workspace }}/e2econfig/logs
