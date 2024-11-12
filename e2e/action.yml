@@ -40,9 +40,7 @@ runs:
       shell: bash
       run: |
         pip install ${{ inputs.octoprint }}
-        #if [ -n "${{ inputs.deps }}" ]; then
-        #  pip install --force-reinstall ${{ inputs.deps }}
-        #fi
+        [ -z "${{ inputs.deps }}" ] || pip install --force-reinstall ${{ inputs.deps }}
 
     - name: 🏗 Create base config for test server
       shell: bash
