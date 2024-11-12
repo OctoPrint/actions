@@ -54,7 +54,7 @@ runs:
       shell: bash
       run: |
         mfa_dummy="OctoPrint/.github/fixtures/mfa_dummy"
-        if [ -f "$mfa_dummy" ]; then
+        if [ -d "$mfa_dummy" ]; then
           mkdir -p e2econfig/plugins
           cp -r "$mfa_dummy" "e2econfig/plugins/mfa_dummy"
         fi
