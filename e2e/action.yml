@@ -67,7 +67,7 @@ runs:
         if [ -d "$mfa_dummy" ]; then
           mkdir -p e2econfig/plugins
           cp -r "$mfa_dummy" "e2econfig/plugins/mfa_dummy"
-          echo "TEST_MFA=true" >> $GITHUB_ENV
+          echo "TEST_MFA=1" >> $GITHUB_ENV
         fi
 
     - name: 🏗 Prepare Playwright env
@@ -122,7 +122,6 @@ runs:
       env:
         NO_SERVER: true
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
-        TEST_MFA: false
 
     - name: 🔎 Check octoprint.log for errors
       if: ${{ inputs.server }} === ""
