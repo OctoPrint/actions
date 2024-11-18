@@ -22,6 +22,10 @@ inputs:
     description: "Suffix to use for the generated artifacts"
     required: false
     default: ""
+  server:
+    description: "URL of existing server to test"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -35,11 +39,13 @@ runs:
         path: OctoPrint
 
     - name: 🏗 Set up Python ${{ inputs.python }}
+      if: ${{ inputs.server }} === ""
       uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python }}
 
     - name: 🏗 Install OctoPrint
+      if: ${{ inputs.server }} === ""
       working-directory: ./OctoPrint/
       shell: bash
       run: |
@@ -47,18 +53,21 @@ runs:
         [ -z "${{ inputs.deps }}" ] || pip install --force-reinstall ${{ inputs.deps }}
 
     - name: 🏗 Create base config for test server
+      if: ${{ inputs.server }} === ""
       shell: bash
       run: |
         mkdir e2econfig
         cp -r OctoPrint/.github/fixtures/with_acl/* e2econfig
 
     - name: 🏗 Install mfa dummy plugin if available
+      if: ${{ inputs.server }} === ""
       shell: bash
       run: |
         mfa_dummy="OctoPrint/.github/fixtures/mfa_dummy"
         if [ -d "$mfa_dummy" ]; then
           mkdir -p e2econfig/plugins
           cp -r "$mfa_dummy" "e2econfig/plugins/mfa_dummy"
+          echo "TEST_MFA=true" >> $GITHUB_ENV
         fi
 
     - name: 🏗 Prepare Playwright env
@@ -94,16 +103,29 @@ runs:
         sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
         npx playwright install-deps
 
-    - name: 🎭 Run Playwright
+    - name: 🎭 Start server and run Playwright
+      if: ${{ inputs.server }} === ""
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
         npx playwright test
       env:
         OCTOPRINT_SERVER_BASE: ${{ github.workspace }}/e2econfig
-        TEST_MFA: true
+        TEST_MFA: ${{ env.TEST_MFA }}
+
+    - name: 🎭 Run Playwright against existing server
+      if: ${{ inputs.server }} !== ""
+      working-directory: ./OctoPrint/tests/playwright
+      shell: bash
+      run: |
+        npx playwright test
+      env:
+        NO_SERVER: true
+        PLAYWRIGHT_BASEURL: ${{ inputs.server }}"
+        TEST_MFA: false
 
     - name: 🔎 Check octoprint.log for errors
+      if: ${{ inputs.server }} === ""
       shell: bash
       run: |
         log=${{ github.workspace }}/e2econfig/logs/octoprint.log
