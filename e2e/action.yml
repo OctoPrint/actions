@@ -121,7 +121,7 @@ runs:
         npx playwright test
       env:
         NO_SERVER: true
-        PLAYWRIGHT_BASEURL: ${{ inputs.server }}"
+        PLAYWRIGHT_BASEURL: ${{ inputs.server }}
         TEST_MFA: false
 
     - name: 🔎 Check octoprint.log for errors
