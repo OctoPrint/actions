@@ -3,7 +3,7 @@ description: "Runs OctoPrint's E2E tests"
 
 inputs:
   ref:
-    description: "OctoPrint ref to install and run tests for"
+    description: "OctoPrint ref to check out"
     required: false
     default: master
   octoprint:
