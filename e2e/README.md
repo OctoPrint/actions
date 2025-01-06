@@ -99,6 +99,8 @@ URL of existing server to test, instead of installing and running OctoPrint from
 
 ### Testing an already running OctoPrint
 
+*Note: This assumes the server being tested is running with OctoPrint's [e2e configuration](https://github.com/OctoPrint/OctoPrint/tree/master/.github/fixtures/with_acl).*
+
 ```yaml
   e2e:
     name: "🧪 E2E"
