@@ -50,7 +50,7 @@ runs:
       shell: bash
       run: |
         pip install ${{ inputs.octoprint }}
-        [ -z "${{ inputs.deps }}" ] || pip install --force-reinstall ${{ inputs.deps }}
+        [ -z "${{ inputs.deps }}" ] || pip install --upgrade ${{ inputs.deps }}
 
     - name: 🏗 Create base config for test server
       if: ${{ !inputs.server }}
