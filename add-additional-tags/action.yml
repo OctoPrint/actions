@@ -1,0 +1,49 @@
+name: "Add additional tags"
+description: "Adds additional version tags MAJOR & MAJOR.MINOR on a MAJOR.MINOR.PATCH tag push. A v prefix will be preserved."
+  
+outputs:
+  tags:
+    description: "Additional tags, comma separated"
+    value: "${{ steps.tag.outputs.tags }}"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/github-script@v7
+      id: tag
+      if: github.event_name == 'push' && github.ref_type == 'tag'
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const tag = "${{ github.ref_name }}";
+          core.info(`Processing tag ${tag}...`);
+
+          const regex = /v?(?<major>[\d]+)\.(?<minor>[\d]+)\.(?<patch>[\d]+)/;
+          const match = tag.match(regex);
+          if (!match) {
+            core.warning(`Tag ${tag} doesn't match vX.Y.Z or X.Y.Z, can't proceed.`);
+            return;
+          }
+
+          const full = match.shift();
+          const prefix = (full.startsWith("v")) ? "v" : "";
+          const [major, minor, patch] = [...match];
+          
+          const tags = [`${prefix}${major}.${minor}`, `${prefix}${major}`]
+          tags.forEach(t => {
+            core.info(`Creating/updating additional tag ${t}...`)
+
+            const data = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/tags/' + t,
+                sha: context.sha
+            };
+
+            github.rest.git.createRef(data).catch(err => {
+                if (err.status !== 422) throw err;
+                github.rest.git.updateRef({...data, ref: 'tags/' + t})
+            });
+          });
+
+          core.setOutput("tags", tags.join(","));
