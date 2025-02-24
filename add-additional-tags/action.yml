@@ -13,7 +13,6 @@ runs:
       id: tag
       if: github.event_name == 'push' && github.ref_type == 'tag'
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const tag = "${{ github.ref_name }}";
           core.info(`Processing tag ${tag}...`);
