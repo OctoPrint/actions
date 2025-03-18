@@ -108,8 +108,8 @@ runs:
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        npx playwright test --grep-invert @isolated
-        npx playwright test --grep @isolated --workers=1
+        PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/parallel npx playwright test --grep-invert @isolated
+        PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/isolated npx playwright test --grep @isolated --workers=1
       env:
         OCTOPRINT_SERVER_BASE: ${{ github.workspace }}/e2econfig
         TEST_MFA: ${{ env.TEST_MFA }}
