@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-if [ -z ${TOKEN+x} ]; then
-    echo "TOKEN is unset. Make sure it's set to a GitHub token that can be used for updating comments."
+if [ -z ${TOKEN} ]; then
+    echo "TOKEN is unset or empty. Make sure it's set to a GitHub token that can be used for updating comments."
     exit -1
 fi
 export GH_TOKEN=$TOKEN
@@ -10,23 +10,23 @@ export GH_TOKEN=$TOKEN
 # verify token
 gh auth status
 
-if [ -z ${REPO+x} ]; then
-    echo "REPO is unset. Make sure it's set to the target repo (format: owner/name)."
+if [ -z ${REPO} ]; then
+    echo "REPO is unset or empty. Make sure it's set to the target repo (format: owner/name)."
     exit -1
 fi
 
-if [ -z ${COMMENT+x} ] && [ -z ${ISSUE+x} ]; then
-    echo "Both ISSUE and COMMENT are unset. Make sure one is set."
+if [ -z ${COMMENT} ] && [ -z ${ISSUE} ]; then
+    echo "Both ISSUE and COMMENT are unset or empty. Make sure one is set."
     exit -1
 fi
-if [ -z ${COMMENT+x} ]; then
+if [ -z ${COMMENT} ]; then
     echo "Operating on body of issue #$ISSUE"
 else
     echo "Operating on body of comment $COMMENT"
 fi
 
-if [ -z ${BODY+x} ]; then
-    if [ -z ${COMMENT+x} ]; then
+if [ -z ${BODY} ]; then
+    if [ -z ${COMMENT} ]; then
         comment=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -138,7 +138,7 @@ if [ "${#bundles[@]}" != "0" ]; then
     echo
     echo "Setting bundle summary on comment..."
 
-    if [ -z ${COMMENT+x} ]; then
+    if [ -z ${COMMENT} ]; then
         echo -e "$updated" | gh api \
             --method PATCH \
             -H "Accept: application/vnd.github+json" \
@@ -160,7 +160,7 @@ else
     if [ "$CONTAINS_BOTMARKER" == "1" ] || [ "$CONTAINS_ALT_BOTMARKER" == "1" ]; then
         echo "No bundles found, removing bundle summary from comment..."
 
-        if [ -z ${COMMENT+x} ]; then
+        if [ -z ${COMMENT} ]; then
             echo -e "$comment" | gh api \
                 --method PATCH \
                 -H "Accept: application/vnd.github+json" \
