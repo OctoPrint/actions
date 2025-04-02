@@ -133,7 +133,7 @@ if [ "${#bundles[@]}" != "0" ]; then
         counter=$((counter+1))
     done
     
-    updated="$comment$BOTMARKER\n$body\n"
+    updated="$comment\n\n$BOTMARKER\n$body\n"
 
     echo
     echo "Setting bundle summary on comment..."
