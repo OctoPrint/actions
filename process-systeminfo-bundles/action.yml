@@ -6,20 +6,17 @@ branding:
   color: "green"
 
 inputs:
-  token:
+  github-token:
     description: GitHub token
     required: true
-  owner:
-    description: Owner of the repo on which the comment was made
-    required: true
   repo:
-    description: Repo on which the comment was made
+    description: Repo on which the comment was made, in the format owner/name
     required: true
   comment-id:
     description: Comment ID
     required: true
   comment-body:
-    description: Comment body. If not provided will be fetched via API.
+    description: Comment body - if not provided will be fetched via API
 
 outputs:
   count:
@@ -29,8 +26,7 @@ runs:
   using: "docker"
   image: "Dockerfile"
   env:
-    TOKEN: ${{ inputs.token }}
-    OWNER: ${{ inputs.owner }}
+    TOKEN: ${{ inputs.github-token }}
     REPO: ${{ inputs.repo }}
     COMMENT_ID: ${{ inputs.comment-id }}
     COMMENT_BODY: ${{ inputs.comment-body }}

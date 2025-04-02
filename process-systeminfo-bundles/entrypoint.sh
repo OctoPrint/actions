@@ -5,15 +5,12 @@ if [ -z ${GH_TOKEN+x} ]; then
     echo "GH_TOKEN is unset. Make sure it's set to a GitHub token that can be used for updating comments."
     exit -1
 fi
+
+# verify token
 gh auth status
 
-if [ -z ${OWNER+x} ]; then
-    echo "OWNER is unset. Make sure it's set to the target repo's owner."
-    exit -1
-fi
-
 if [ -z ${REPO+x} ]; then
-    echo "REPO is unset. Make sure it's set to the target repo."
+    echo "REPO is unset. Make sure it's set to the target repo (format: owner/name)."
     exit -1
 fi
 
@@ -26,7 +23,7 @@ if [ -z ${COMMENT_BODY+x} ]; then
     comment=$(gh api \
       -H "Accept: application/vnd.github+json" \
       -H "X-GitHub-Api-Version: 2022-11-28" \
-      /repos/$OWNER/$REPO/issues/comments/$COMMENT_ID | jq -r ".body"
+      /repos/$REPO/issues/comments/$COMMENT_ID | jq -r ".body"
     )
 else
     comment="$COMMENT_BODY"
@@ -131,7 +128,7 @@ if [ "${#bundles[@]}" != "0" ]; then
       --method PATCH \
       -H "Accept: application/vnd.github+json" \
       -H "X-GitHub-Api-Version: 2022-11-28" \
-      /repos/$OWNER/$REPO/issues/comments/$COMMENT_ID \
+      /repos/$REPO/issues/comments/$COMMENT_ID \
       -F "body=@-" > /dev/null
 
     echo "...done"
@@ -144,11 +141,11 @@ else
           --method PATCH \
           -H "Accept: application/vnd.github+json" \
           -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/$OWNER/$REPO/issues/comments/$COMMENT_ID \
+          /repos/$REPO/issues/comments/$COMMENT_ID \
           -F "body=@-" > /dev/null
 
         echo "...done"
     fi
 fi
 
-echo "count=${#bundles[@]}" >> $GITHUB_OUTPUT
+[ -n "$GITHUB_OUTPUT" ] && echo "count=${#bundles[@]}" >> $GITHUB_OUTPUT
