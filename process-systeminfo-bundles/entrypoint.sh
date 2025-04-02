@@ -27,21 +27,21 @@ fi
 
 if [ -z ${BODY} ]; then
     if [ -z ${COMMENT} ]; then
-        comment=$(gh api \
+        BODY=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/$REPO/issues/$ISSUE | jq -r ".body"
             )
     else
-        comment=$(gh api \
+        BODY=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/$REPO/issues/comments/$COMMENT | jq -r ".body"
             )
     fi
-else
-    comment="$BODY"
 fi
+
+comment="$BODY"
 
 BOTMARKER="<!-- process-systeminfo-bundles -->"
 ALT_BOTMARKER="<!-- linkify_bundles -->"
@@ -49,16 +49,18 @@ ALT_BOTMARKER="<!-- linkify_bundles -->"
 CONTAINS_BOTMARKER=$(echo "$comment" | grep -q "$BOTMARKER" && echo "1" || echo "0")
 CONTAINS_ALT_BOTMARKER=$(echo "$comment" | grep -q "$ALT_BOTMARKER" && echo "1" || echo "0")
 
-# strip existing botmarkers and tail, plus all bundle footnotes
+# strip existing botmarkers and tail, plus all bundle footnotes, and trim
 comment="${comment%$BOTMARKER*}"
 comment="${comment%$ALT_BOTMARKER*}"
 comment="${comment//\[^bundle[0-9]\]/}"
+comment=$(echo -e "$comment" | sed -z "s/\n*$//")
 
 declare -A bundles
 
 # extract bundle data
 echo "Detecting potential bundles..."
-for match in $(echo "$comment" | grep -oP "\[octoprint-systeminfo-\d{14}\.zip\]\([^)]+\)"); do
+for match in $(echo "$comment" | grep -oP "\[octoprint-systeminfo-\d{14}\.zip\]\(https://github\.com/user-attachments/files/[0-9]+/octoprint-systeminfo-\d{14}\.zip\)"); do
+    # we are only interested in links to github user-attachments matching our filename octoprint-systeminfo-<timestamp>.zip
     name=$(echo "$match" | grep -oP "(?<=\[)(.*?)(?=(\]|\Z))")
     echo "  Found bundle $name..."
     
@@ -72,7 +74,7 @@ echo
 
 if [ "${#bundles[@]}" != "0" ]; then
     counter=1
-    body=""
+    footnotes=""
     padding="                              "
 
     for line in "${bundles[@]}"; do
@@ -128,37 +130,42 @@ if [ "${#bundles[@]}" != "0" ]; then
         escaped_replace=$(printf '%s\n' "$match[^$footnote]" | sed -e 's/[\/&]/\\&/g')
         comment="${comment//${escaped_keyword}/${match}[^${footnote}]}"
 
-        body="$body[^$footnote]: \`$name\` ([bundleviewer](https://bundleviewer.octoprint.org/?url=$encoded)) ([download]($url))$extra\n"
+        footnotes="$footnotes[^$footnote]: \`$name\` ([bundleviewer](https://bundleviewer.octoprint.org/?url=$encoded)) ([download]($url))$extra\n"
 
         counter=$((counter+1))
     done
     
-    updated="$comment\n\n$BOTMARKER\n$body\n"
+    updated="$comment\n\n$BOTMARKER\n$footnotes\n"
 
-    echo
-    echo "Setting bundle summary on comment..."
+    if ! diff -B <(echo -e "$BODY") <(echo -e "$updated"); then
+        echo
+        echo "Setting bundle summary on post..."
 
-    if [ -z ${COMMENT} ]; then
-        echo -e "$updated" | gh api \
-            --method PATCH \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/$REPO/issues/$ISSUE \
-            -F "body=@-" > /dev/null
+        if [ -z ${COMMENT} ]; then
+            echo -e "$updated" | gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                /repos/$REPO/issues/$ISSUE \
+                -F "body=@-" > /dev/null
+        else
+            echo -e "$updated" | gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                /repos/$REPO/issues/comments/$COMMENT \
+                -F "body=@-" > /dev/null
+        fi
+
+        echo "...done"
     else
-        echo -e "$updated" | gh api \
-            --method PATCH \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            /repos/$REPO/issues/comments/$COMMENT \
-            -F "body=@-" > /dev/null
+        echo
+        echo "No changes to post detected, doing nothing"
     fi
-
-    echo "...done"
 
 else 
     if [ "$CONTAINS_BOTMARKER" == "1" ] || [ "$CONTAINS_ALT_BOTMARKER" == "1" ]; then
-        echo "No bundles found, removing bundle summary from comment..."
+        echo "No bundles found, removing bundle summary from post..."
 
         if [ -z ${COMMENT} ]; then
             echo -e "$comment" | gh api \
