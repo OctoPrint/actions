@@ -12,11 +12,12 @@ inputs:
   repo:
     description: Repo on which the comment was made, in the format owner/name
     required: true
-  comment-id:
-    description: Comment ID
-    required: true
-  comment-body:
-    description: Comment body - if not provided will be fetched via API
+  comment:
+    description: Comment ID, either this or the issue number need to be set
+  issue:
+    description: Issue number, either this or the comment id need to be set
+  body:
+    description: Text body - if not provided will be fetched via API
 
 outputs:
   count:
@@ -28,5 +29,6 @@ runs:
   env:
     TOKEN: ${{ inputs.github-token }}
     REPO: ${{ inputs.repo }}
-    COMMENT_ID: ${{ inputs.comment-id }}
-    COMMENT_BODY: ${{ inputs.comment-body }}
+    COMMENT: ${{ inputs.comment }}
+    ISSUE: ${{ inputs.issue }}
+    BODY: ${{ inputs.body }}

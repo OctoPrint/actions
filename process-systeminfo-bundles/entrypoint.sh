@@ -14,19 +14,32 @@ if [ -z ${REPO+x} ]; then
     exit -1
 fi
 
-if [ -z ${COMMENT_ID+x} ]; then
-    echo "COMMENT_ID is unset. Make sure it's set to the comment id."
+if [ -z ${COMMENT+x} ] && [ -z ${ISSUE+x} ]; then
+    echo "Both ISSUE and COMMENT are unset. Make sure one is set."
     exit -1
 fi
-
-if [ -z ${COMMENT_BODY+x} ]; then
-    comment=$(gh api \
-      -H "Accept: application/vnd.github+json" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      /repos/$REPO/issues/comments/$COMMENT_ID | jq -r ".body"
-    )
+if [ -z ${COMMENT+x} ]; then
+    echo "Operating on body of issue #$ISSUE"
 else
-    comment="$COMMENT_BODY"
+    echo "Operating on body of comment $COMMENT"
+fi
+
+if [ -z ${BODY+x} ]; then
+    if [ -z ${COMMENT+x} ]; then
+        comment=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/$REPO/issues/$ISSUE | jq -r ".body"
+            )
+    else
+        comment=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/$REPO/issues/comments/$COMMENT | jq -r ".body"
+            )
+    fi
+else
+    comment="$BODY"
 fi
 
 BOTMARKER="<!-- process-systeminfo-bundles -->"
@@ -53,7 +66,7 @@ for match in $(echo "$comment" | grep -oP "\[octoprint-systeminfo-\d{14}\.zip\]\
         bundles[$name]=$(echo -e "$name|$url|$match")
     fi
 done
-echo "Found what looks like ${#bundles[@]} bundle(s)"
+echo "Detected ${#bundles[@]} bundle(s)"
 echo
 
 if [ "${#bundles[@]}" != "0" ]; then
@@ -124,12 +137,21 @@ if [ "${#bundles[@]}" != "0" ]; then
     echo
     echo "Setting bundle summary on comment..."
 
-    echo -e "$updated" | gh api \
-      --method PATCH \
-      -H "Accept: application/vnd.github+json" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      /repos/$REPO/issues/comments/$COMMENT_ID \
-      -F "body=@-" > /dev/null
+    if [ -z ${COMMENT+x} ]; then
+        echo -e "$updated" | gh api \
+            --method PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/$REPO/issues/$ISSUE \
+            -F "body=@-" > /dev/null
+    else
+        echo -e "$updated" | gh api \
+            --method PATCH \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/$REPO/issues/comments/$COMMENT \
+            -F "body=@-" > /dev/null
+    fi
 
     echo "...done"
 
@@ -137,12 +159,21 @@ else
     if [ "$CONTAINS_BOTMARKER" == "1" ] || [ "$CONTAINS_ALT_BOTMARKER" == "1" ]; then
         echo "No bundles found, removing bundle summary from comment..."
 
-        echo -e "$comment" | gh api \
-          --method PATCH \
-          -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          /repos/$REPO/issues/comments/$COMMENT_ID \
-          -F "body=@-" > /dev/null
+        if [ -z ${COMMENT+x} ]; then
+            echo -e "$comment" | gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                /repos/$REPO/issues/$ISSUE \
+                -F "body=@-" > /dev/null
+        else
+            echo -e "$comment" | gh api \
+                --method PATCH \
+                -H "Accept: application/vnd.github+json" \
+                -H "X-GitHub-Api-Version: 2022-11-28" \
+                /repos/$REPO/issues/comments/$COMMENT \
+                -F "body=@-" > /dev/null
+        fi
 
         echo "...done"
     fi
