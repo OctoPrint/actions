@@ -135,7 +135,7 @@ if [ "${#bundles[@]}" != "0" ]; then
         counter=$((counter+1))
     done
     
-    updated="$comment\n\n$BOTMARKER\n$footnotes\n"
+    updated="$comment\n\n$BOTMARKER<!-- DO NOT EDIT BELOW THIS LINE -->\n$footnotes\n"
 
     if ! diff -B <(echo -e "$BODY") <(echo -e "$updated"); then
         echo
