@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-if [ -z ${GH_TOKEN+x} ]; then
-    echo "GH_TOKEN is unset. Make sure it's set to a GitHub token that can be used for updating comments."
+if [ -z ${TOKEN+x} ]; then
+    echo "TOKEN is unset. Make sure it's set to a GitHub token that can be used for updating comments."
     exit -1
 fi
+export GH_TOKEN=$TOKEN
 
 # verify token
 gh auth status
