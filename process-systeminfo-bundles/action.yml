@@ -1,0 +1,36 @@
+name: "Process Systeminfo Bundles"
+description: "Process OctoPrint Systeminfo Bundles linked in issue comments and adds summaries and bundleviewer links for them as footnotes"
+
+branding:
+  icon: "package"
+  color: "green"
+
+inputs:
+  token:
+    description: GitHub token
+    required: true
+  owner:
+    description: Owner of the repo on which the comment was made
+    required: true
+  repo:
+    description: Repo on which the comment was made
+    required: true
+  comment-id:
+    description: Comment ID
+    required: true
+  comment-body:
+    description: Comment body. If not provided will be fetched via API.
+
+outputs:
+  count:
+    description: Number of detected bundles
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    TOKEN: ${{ inputs.token }}
+    OWNER: ${{ inputs.owner }}
+    REPO: ${{ inputs.repo }}
+    COMMENT_ID: ${{ inputs.comment-id }}
+    COMMENT_BODY: ${{ inputs.comment-body }}
