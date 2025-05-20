@@ -70,6 +70,17 @@ runs:
           echo "TEST_MFA=1" >> $GITHUB_ENV
         fi
 
+    - name: 🏗 Install csrf test plugin if available
+      if: ${{ !inputs.server }}
+      shell: bash
+      run: |
+        csrf_test="OctoPrint/.github/fixtures/csrf_test.py"
+        if [ -f "$csrf_test" ]; then
+          mkdir -p e2econfig/plugins
+          cp -r "$csrf_test" "e2econfig/plugins/csrf_test.py"
+          echo "TEST_CSRF=1" >> $GITHUB_ENV
+        fi
+
     - name: 🏗 Prepare Playwright env
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
@@ -108,18 +119,24 @@ runs:
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/parallel npx playwright test --grep-invert @isolated
-        (npx playwright test --list --grep @isolated && PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/isolated npx playwright test --grep @isolated --workers=1) || true
+        PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/parallel npx playwright test --grep-invert @isolated --grep-invert @csrf
+        (NO_SERVER=1 npx playwright test --list --grep @isolated && NO_SERVER=0 PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/isolated npx playwright test --grep @isolated --workers=1) || true
+
+        if [ "$TEST_CSRF" == "1" ]; then
+          octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool devel.enableCsrfProtection true
+          (NO_SERVER=1 npx playwright test --list --grep @csrf && NO_SERVER=0 PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/csrf npx playwright test --grep @csrf) || true
+        fi
       env:
         OCTOPRINT_SERVER_BASE: ${{ github.workspace }}/e2econfig
         TEST_MFA: ${{ env.TEST_MFA }}
+        TEST_CSRF: ${{ env.TEST_CSRF }}
 
     - name: 🎭 Run Playwright against existing server
       if: ${{ inputs.server }}
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        npx playwright test --grep-invert @isolated
+        npx playwright test --grep-invert @isolated --grep-invert @csrf
       env:
         NO_SERVER: true
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
