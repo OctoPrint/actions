@@ -2,6 +2,10 @@ name: "OctoPrint E2E Test"
 description: "Runs OctoPrint's E2E tests"
 
 inputs:
+  repository:
+    description: "OctoPrint repository to check out"
+    required: false
+    default: OctoPrint/OctoPrint
   ref:
     description: "OctoPrint ref to check out"
     required: false
@@ -33,7 +37,7 @@ runs:
     - name: "⬇ Checkout OctoPrint with E2E tests"
       uses: actions/checkout@v4
       with:
-        repository: OctoPrint/OctoPrint
+        repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         fetch-depth: 0
         path: OctoPrint
