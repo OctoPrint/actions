@@ -145,7 +145,7 @@ runs:
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        npx playwright test --grep-invert @isolated --grep-invert @csrf
+        npx playwright test --grep-invert "@isolated|@csrf"
       env:
         NO_SERVER: true
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
