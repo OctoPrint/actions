@@ -135,6 +135,8 @@ runs:
             PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/csrf npx playwright test --grep @csrf
           fi
         fi
+
+        tree playwright-report
       env:
         OCTOPRINT_SERVER_BASE: ${{ github.workspace }}/e2econfig
         TEST_MFA: ${{ env.TEST_MFA }}
@@ -146,6 +148,7 @@ runs:
       shell: bash
       run: |
         npx playwright test --grep-invert "@isolated|@csrf"
+        tree playwright-report
       env:
         NO_SERVER: true
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
