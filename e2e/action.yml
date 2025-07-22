@@ -123,6 +123,12 @@ runs:
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
+        # disable update notifications for core & bundled plugins
+        octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool plugins.softwareupdate.checks.octoprint.disabled true
+        octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool plugins.softwareupdate.checks.file_check.disabled true
+        octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool plugins.softwareupdate.checks.firmware_check.disabled true
+        octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool plugins.softwareupdate.checks.pi_support.disabled true
+
         export PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/parallel
         npx playwright test --grep-invert "@isolated|@csrf"
 
