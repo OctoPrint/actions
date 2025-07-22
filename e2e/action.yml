@@ -125,12 +125,10 @@ runs:
       run: |
         export PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/parallel
         npx playwright test --grep-invert "@isolated|@csrf"
-        tree playwright-report
 
         export PLAYWRIGHT_HTML_OUTPUT_DIR=playwright-report/isolated 
         if npx playwright test --list --grep @isolated > /dev/null; then
           npx playwright test --grep @isolated --workers=1
-          tree playwright-report
         fi
 
         if [ "$TEST_CSRF" == "1" ]; then
@@ -138,7 +136,6 @@ runs:
           if npx playwright test --list --grep @csrf > /dev/null; then
             octoprint -b "$OCTOPRINT_SERVER_BASE" config set --bool devel.enableCsrfProtection true
             npx playwright test --grep @csrf
-            tree playwright-report
           fi
         fi
       env:
@@ -152,7 +149,6 @@ runs:
       shell: bash
       run: |
         npx playwright test --grep-invert "@isolated|@csrf"
-        tree playwright-report
       env:
         NO_SERVER: true
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
