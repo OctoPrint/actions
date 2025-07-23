@@ -23,16 +23,23 @@ runs:
       run: |
         twine check --strict dist/*
     - name: 🔨 Build a source tarball
+      id: srcball
       shell: bash
       run: |
-        # find the sdist
         sdist=$(ls dist/*.tar.gz)
+        echo "sdist=$sdist" >> $GITHUB_OUTPUT
 
-        # strip the suffix to get the prefix
         prefix=$(basename ${sdist%.tar.gz})
+        echo "prefix=$prefix" >> $GITHUB_OUTPUT
+
+        wheel=$(ls dist/$prefix*.whl)
+        echo "wheel=$wheel" >> $GITHUB_OUTPUT
+
+        source="dist/$prefix.source.tar.gz"
+        echo "source=$source" >> $GITHUB_OUTPUT
 
         # create the source tarball
-        git archive --prefix $prefix/ HEAD --output dist/$prefix.source.tar.gz
+        git archive --prefix "$prefix/" HEAD --output "$source"
 
         # list the files
         tree dist
@@ -43,6 +50,52 @@ runs:
         sha512sum *.whl *.tar.gz > sha512sums.txt
 
         cat sha512sums.txt
+    - name: Generate report
+      shell: bash
+      run: |
+        cat << EOF >> $GITHUB_STEP_SUMMARY
+        ### Dist Build Result
+
+        \`\`\`
+        $(tree dist)
+        \`\`\`
+
+        <details>
+        <summary>sdist contents</summary>
+
+        \`\`\`
+        $(tar -tvf ${{ steps.srcball.outputs.sdist }})
+        \`\`\`
+
+        </details>
+
+        <details>
+        <summary>wheel contents</summary>
+
+        \`\`\`
+        $(unzip -l ${{ steps.srcball.outputs.wheel }})
+        \`\`\`
+
+        </details>
+
+        <details>
+        <summary>source tarball contents</summary>
+
+        \`\`\`
+        $(tar -tvf ${{ steps.srcball.outputs.source }})
+        \`\`\`
+
+        </details>
+
+        <details>
+        <summary>SHA512 sums</summary>
+
+        \`\`\`
+        $(cat dist/sha512sums.txt)
+        \`\`\`
+
+        </details>
+        EOF
     - name: ⬆ Upload build result
       uses: actions/upload-artifact@v4
       with:
