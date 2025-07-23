@@ -11,15 +11,19 @@ runs:
   using: "composite"
   steps:
     - name: 🏗 Install build dependencies
+      shell: bash
       run: |
         python -m pip install build twine --user
     - name: 🔨 Build a binary wheel & an sdist tarball
+      shell: bash
       run: |
         python -m build .
     - name: 🔎 Check wheel and sdist with twine
+      shell: bash
       run: |
         twine check --strict dist/*
     - name: 🔨 Build a source tarball
+      shell: bash
       run: |
         # find the sdist
         sdist=$(ls dist/*.tar.gz)
@@ -33,6 +37,7 @@ runs:
         # list the files
         tree dist
     - name: 🔨 Create sha512sums of dist files
+      shell: bash
       run: |
         cd dist
         sha512sum *.whl *.tar.gz > sha512sums.txt
