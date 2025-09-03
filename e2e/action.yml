@@ -9,7 +9,7 @@ inputs:
   ref:
     description: "OctoPrint ref to check out"
     required: false
-    default: master
+    default: "main"
   octoprint:
     description: "OctoPrint dep to install via pip"
     required: false
