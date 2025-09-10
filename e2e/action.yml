@@ -42,6 +42,17 @@ runs:
         fetch-depth: 0
         path: OctoPrint
 
+    - name: "🔎 Figure out location of CI related files"
+      shell: bash
+      run: |
+        if [ -d "OctoPrint/.github/ci" ]; then
+          CI=ci
+        else
+          CI=fixtures
+        fi
+
+        echo "CI_FILES=OctoPrint/.github/$CI" >> $GITHUB_ENV
+
     - name: 🏗 Set up Python ${{ inputs.python }}
       if: ${{ !inputs.server }}
       uses: actions/setup-python@v5
@@ -61,13 +72,20 @@ runs:
       shell: bash
       run: |
         mkdir e2econfig
-        cp -r OctoPrint/.github/fixtures/with_acl/* e2econfig
+
+        CONFIG="$CI_FILES/e2econfig"
+        if [ ! -d "$CONFIG" ]; then
+          # old config location
+          CONFIG="$CI_FILES/with_acl"
+        fi
+
+        cp -r "$CONFIG/*" e2econfig
 
     - name: 🏗 Install mfa dummy plugin if available
       if: ${{ !inputs.server }}
       shell: bash
       run: |
-        mfa_dummy="OctoPrint/.github/fixtures/mfa_dummy"
+        mfa_dummy="$CI_FILES/mfa_dummy"
         if [ -d "$mfa_dummy" ]; then
           mkdir -p e2econfig/plugins
           cp -r "$mfa_dummy" "e2econfig/plugins/mfa_dummy"
@@ -78,7 +96,7 @@ runs:
       if: ${{ !inputs.server }}
       shell: bash
       run: |
-        csrf_test="OctoPrint/.github/fixtures/csrf_test.py"
+        csrf_test="$CI_FILES/csrf_test.py"
         if [ -f "$csrf_test" ]; then
           mkdir -p e2econfig/plugins
           cp -r "$csrf_test" "e2econfig/plugins/csrf_test.py"
