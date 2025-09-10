@@ -79,7 +79,7 @@ runs:
           CONFIG="$CI_FILES/with_acl"
         fi
 
-        cp -r "$CONFIG/*" e2econfig
+        cp -r "$CONFIG"/* e2econfig
 
     - name: 🏗 Install mfa dummy plugin if available
       if: ${{ !inputs.server }}
