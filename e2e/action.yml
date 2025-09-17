@@ -203,12 +203,12 @@ runs:
           cat octoprint-log-errors.txt
 
           cat << EOF >> $GITHUB_STEP_SUMMARY
-          ### Errors logged to `octoprint.log`
+        ### Errors logged to `octoprint.log`
 
-          \`\`\`
-          $(cat octoprint-log-errors.txt)
-          \`\`\`
-          EOF
+        \`\`\`
+        $(cat octoprint-log-errors.txt)
+        \`\`\`
+        EOF
 
           exit 1
         fi
