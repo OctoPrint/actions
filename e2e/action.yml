@@ -183,8 +183,24 @@ runs:
       run: |
         log=${{ github.workspace }}/e2econfig/logs/octoprint.log
         if grep "\- ERROR \-" $log; then
+          errors=$(grep -Pazo '(?m)^\N+\- ERROR \-\N*\n(^\N*?\n)*?(?=\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \- )' $log)
+
           echo "::error::Errors were logged to octoprint.log"
-          grep -Pazo '(?m)^\N+\- ERROR \-\N*\n(^\N*?\n)*?(?=\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \- )' $log
+          echo "$errors"
+
+          cat << EOF >> $GITHUB_STEP_SUMMARY
+          ### Errors logged to `octoprint.log`
+
+          <details>
+          <summary>$summary</summary>
+
+          \`\`\`
+          $(echo "$errors")
+          \`\`\`
+
+          </details>
+          EOF
+
           exit 1
         fi
 
