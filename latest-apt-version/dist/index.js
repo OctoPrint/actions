@@ -9764,7 +9764,9 @@ async function run() {
       core.debug("Decompressing gzipped data");
       data = await gunzip(data);
     }
-    const packages = new apt_parser.Packages(data.toString("utf8"));
+    const packages = new apt_parser.Packages(data.toString("utf8"), {
+      skipValidation: true,
+    });
 
     core.debug(`Found ${packages.length} packages`);
 
