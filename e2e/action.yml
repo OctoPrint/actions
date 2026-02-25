@@ -124,17 +124,21 @@ runs:
         restore-keys: |
           ${{ runner.os }}-playwright-
 
+    - name: 🏗 Change apt mirror priorities
+      shell: bash
+      run: |
+        echo "::group::Changing apt mirror priorities, see https://github.com/actions/runner-images/issues/7048"
+        sudo sed -i '/archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:2/priority:0/' /etc/apt/apt-mirrors.txt
+        sudo sed -i '/azure.archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:0/priority:1/' /etc/apt/apt-mirrors.txt
+        sudo sed -i '/security.ubuntu.com\/ubuntu\/\tpriority/ s/priority:3/priority:2/' /etc/apt/apt-mirrors.txt
+        sudo cat /etc/apt/apt-mirrors.txt
+        echo "::endgroup::"
+
     - name: 🏗 Install Playwright browser binaries & OS dependencies
       if: steps.playwright-cache.outputs.cache-hit != 'true'
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        # Change mirror priorities, see https://github.com/actions/runner-images/issues/7048
-        sudo sed -i '/archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:2/priority:0/' /etc/apt/apt-mirrors.txt
-        sudo sed -i '/azure.archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:0/priority:1/' /etc/apt/apt-mirrors.txt
-        sudo sed -i '/security.ubuntu.com\/ubuntu\/\tpriority/ s/priority:3/priority:2/' /etc/apt/apt-mirrors.txt
-        sudo cat /etc/apt/apt-mirrors.txt
-
         echo "::group::Installing Playwright browser binaries & OS dependencies"
         npx playwright install --with-deps
         echo "::endgroup::"
@@ -144,12 +148,6 @@ runs:
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
       run: |
-        # Change mirror priorities, see https://github.com/actions/runner-images/issues/7048
-        sudo sed -i '/archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:2/priority:0/' /etc/apt/apt-mirrors.txt
-        sudo sed -i '/azure.archive.ubuntu.com\/ubuntu\/\tpriority/ s/priority:0/priority:1/' /etc/apt/apt-mirrors.txt
-        sudo sed -i '/security.ubuntu.com\/ubuntu\/\tpriority/ s/priority:3/priority:2/' /etc/apt/apt-mirrors.txt
-        sudo cat /etc/apt/apt-mirrors.txt
-
         echo "::group::Installing Playwright OS dependencies"
         npx playwright install-deps
         echo "::endgroup::"
