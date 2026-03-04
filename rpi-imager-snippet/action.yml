@@ -37,20 +37,20 @@ runs:
   steps:
     - name: "🆕 Create rpi-imager.json snippet"
       run: |
-        IMAGE_SHA256="${{ inputs.image_sha256 }}"
-        IMAGE_SIZE=${{ inputs.image_size }}
-        ZIP_SHA256="${{ inputs.zip_sha256 }}"
-        ZIP_SIZE=${{ inputs.zip_size }}
-        OUTPUT="${{ inputs.output }}"
+        IMAGE_SHA256="${INPUTS_IMAGE_SHA256}"
+        IMAGE_SIZE=${INPUTS_IMAGE_SIZE}
+        ZIP_SHA256="${INPUTS_ZIP_SHA256}"
+        ZIP_SIZE=${INPUTS_ZIP_SIZE}
+        OUTPUT="${INPUTS_OUTPUT}"
 
-        NAME="${{ inputs.name }}"
-        DESCRIPTION="${{ inputs.description }}"
-        ICON="${{ inputs.icon }}"
-        URL="${{ inputs.url }}"
+        NAME="${INPUTS_NAME}"
+        DESCRIPTION="${INPUTS_DESCRIPTION}"
+        ICON="${INPUTS_ICON}"
+        URL="${INPUTS_URL}"
         DATE=`date '+%Y-%m-%d'`
 
-        INIT_FORMAT="${{ inputs.init_format }}"
-        DEVICES_RAW="${{ inputs.devices }}"
+        INIT_FORMAT="${INPUTS_INIT_FORMAT}"
+        DEVICES_RAW="${INPUTS_DEVICES}"
 
         if [ -z "$INIT_FORMAT" ]; then
           INIT_FORMAT="systemd"
@@ -83,3 +83,15 @@ runs:
         }
         EOF
       shell: bash
+      env:
+        INPUTS_IMAGE_SHA256: ${{ inputs.image_sha256 }}
+        INPUTS_IMAGE_SIZE: ${{ inputs.image_size }}
+        INPUTS_ZIP_SHA256: ${{ inputs.zip_sha256 }}
+        INPUTS_ZIP_SIZE: ${{ inputs.zip_size }}
+        INPUTS_OUTPUT: ${{ inputs.output }}
+        INPUTS_NAME: ${{ inputs.name }}
+        INPUTS_DESCRIPTION: ${{ inputs.description }}
+        INPUTS_ICON: ${{ inputs.icon }}
+        INPUTS_URL: ${{ inputs.url }}
+        INPUTS_INIT_FORMAT: ${{ inputs.init_format }}
+        INPUTS_DEVICES: ${{ inputs.devices }}

@@ -35,23 +35,22 @@ runs:
   using: "composite"
   steps:
     - name: "⬇ Checkout OctoPrint with E2E tests"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         fetch-depth: 0
         path: OctoPrint
+        persist-credentials: false
 
     - name: "🔎 Figure out location of CI related files"
       shell: bash
       run: |
         if [ -d "OctoPrint/.github/ci" ]; then
-          CI=ci
+          echo "CI_FILES=OctoPrint/.github/ci" >> $GITHUB_ENV
         else
-          CI=fixtures
+          echo "CI_FILES=OctoPrint/.github/fixtures" >> $GITHUB_ENV
         fi
-
-        echo "CI_FILES=OctoPrint/.github/$CI" >> $GITHUB_ENV
 
     - name: 🏗 Set up Python ${{ inputs.python }}
       if: ${{ !inputs.server }}
@@ -65,9 +64,12 @@ runs:
       shell: bash
       run: |
         echo "::group::Installing OctoPrint"
-        pip install ${{ inputs.octoprint }}
-        [ -z "${{ inputs.deps }}" ] || pip install --upgrade ${{ inputs.deps }}
+        pip install ${INPUTS_OCTOPRINT}
+        [ -z "${INPUTS_DEPS}" ] || pip install --upgrade ${INPUTS_DEPS}
         echo "::endgroup::"
+      env:
+        INPUTS_OCTOPRINT: ${{ inputs.octoprint }}
+        INPUTS_DEPS: ${{ inputs.deps }}
 
     - name: 🏗 Create base config for test server
       if: ${{ !inputs.server }}
@@ -108,7 +110,7 @@ runs:
     - name: 🏗 Prepare Playwright env
       working-directory: ./OctoPrint/tests/playwright
       shell: bash
-      run: |
+      run: | # zizmor: ignore[github-env]
         echo "::group::Installing Playwright"
         npm ci
         echo "::endgroup::"
@@ -200,7 +202,7 @@ runs:
         PLAYWRIGHT_BASEURL: ${{ inputs.server }}
 
     - name: 🔎 Check octoprint.log for errors
-      if: ${{ inputs.server }} === ""
+      if: ${{ inputs.server }} === "" # zizmor: ignore[unsound-condition] false positive
       shell: bash
       run: |
         echo "::group::Checking octoprint.log for errors"

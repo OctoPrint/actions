@@ -1,6 +1,6 @@
 name: "Add additional tags"
 description: "Adds additional version tags MAJOR & MAJOR.MINOR on a MAJOR.MINOR.PATCH tag push. A v prefix will be preserved."
-  
+
 outputs:
   tags:
     description: "Additional tags, comma separated"
@@ -14,7 +14,7 @@ runs:
       if: github.event_name == 'push' && github.ref_type == 'tag'
       with:
         script: |
-          const tag = "${{ github.ref_name }}";
+          const tag = context.github.ref_name;
           core.info(`Processing tag ${tag}...`);
 
           const regex = /v?(?<major>[\d]+)\.(?<minor>[\d]+)\.(?<patch>[\d]+)/;
@@ -27,7 +27,7 @@ runs:
           const full = match.shift();
           const prefix = (full.startsWith("v")) ? "v" : "";
           const [major, minor, patch] = [...match];
-          
+
           const tags = [`${prefix}${major}.${minor}`, `${prefix}${major}`]
           tags.forEach(t => {
             core.info(`Creating/updating additional tag ${t}...`)

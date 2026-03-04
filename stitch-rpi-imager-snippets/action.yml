@@ -14,8 +14,8 @@ runs:
       run: |
         set -e
 
-        OUTPUT="${{ inputs.output }}"
-        SNIPPETS="${{ inputs.snippets }}"
+        OUTPUT="${INPUTS_OUTPUT}"
+        SNIPPETS="${INPUTS_SNIPPETS}"
 
         jq --null-input '.os_list=[]' > $OUTPUT
         for snippet in $SNIPPETS; do
@@ -27,3 +27,6 @@ runs:
           jq --argjson snippet "$(<$snippet)" '.os_list += [$snippet]' $OUTPUT > $OUTPUT.tmp && mv $OUTPUT.tmp $OUTPUT
         done
       shell: bash
+      env:
+        INPUTS_OUTPUT: ${{ inputs.output }}
+        INPUTS_SNIPPETS: ${{ inputs.snippets }}

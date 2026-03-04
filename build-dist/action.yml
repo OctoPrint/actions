@@ -64,7 +64,7 @@ runs:
         <summary>sdist contents</summary>
 
         \`\`\`
-        $(tar -tvf ${{ steps.srcball.outputs.sdist }})
+        $(tar -tvf ${STEPS_SRCBALL_OUTPUTS_SDIST})
         \`\`\`
 
         </details>
@@ -73,7 +73,7 @@ runs:
         <summary>wheel contents</summary>
 
         \`\`\`
-        $(unzip -l ${{ steps.srcball.outputs.wheel }})
+        $(unzip -l ${STEPS_SRCBALL_OUTPUTS_WHEEL})
         \`\`\`
 
         </details>
@@ -82,7 +82,7 @@ runs:
         <summary>source tarball contents</summary>
 
         \`\`\`
-        $(tar -tvf ${{ steps.srcball.outputs.source }})
+        $(tar -tvf ${STEPS_SRCBALL_OUTPUTS_SOURCE})
         \`\`\`
 
         </details>
@@ -96,6 +96,10 @@ runs:
 
         </details>
         EOF
+      env:
+        STEPS_SRCBALL_OUTPUTS_SDIST: ${{ steps.srcball.outputs.sdist }}
+        STEPS_SRCBALL_OUTPUTS_WHEEL: ${{ steps.srcball.outputs.wheel }}
+        STEPS_SRCBALL_OUTPUTS_SOURCE: ${{ steps.srcball.outputs.source }}
     - name: ⬆ Upload build result
       uses: actions/upload-artifact@v4
       with:
