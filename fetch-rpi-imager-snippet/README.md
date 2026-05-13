@@ -46,3 +46,19 @@ If set and matches either a release's name or description, the release will be i
         ignoreRegex: "rc|branch|mark:ignored|mark:untested"
         output: ./files/rpi-imager-latest.json
 ```
+
+## Development
+
+### Local testing
+
+```
+cp .env.sample .env # once, adjust
+export $(xargs < .env)
+node src/index.js
+```
+
+### Build
+
+```
+npm run build
+```
