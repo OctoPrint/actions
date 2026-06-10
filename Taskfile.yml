@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  audit:
+    desc: Run zizmor audit on source
+    cmds:
+      - zizmor .
+
+  update:
+    desc: Update GitHub Action workflow files & custom actions to new versions of used actions
+    cmds:
+      - pinact run --update

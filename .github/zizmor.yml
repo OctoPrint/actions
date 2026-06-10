@@ -2,7 +2,3 @@ rules:
   dangerous-triggers:
     ignore:
       - add_to_backlog.yml
-  unpinned-uses:
-    config:
-      policies:
-        actions/*: any
