@@ -234,7 +234,7 @@ runs:
 
     - name: ⬆ Upload OctoPrint logs
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-      if: failure()
+      if: failure() || runner.debug
       with:
         name: octoprint-logs${{ inputs.suffix }}
         path: ${{ github.workspace }}/e2econfig/logs
