@@ -12,9 +12,11 @@ runs:
     - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
       id: tag
       if: github.event_name == 'push' && github.ref_type == 'tag'
+      env:
+        REF_NAME: ${{ github.ref_name }}
       with:
         script: |
-          const tag = context.github.ref_name;
+          const tag = process.env.REF_NAME;
           core.info(`Processing tag ${tag}...`);
 
           const regex = /v?(?<major>[\d]+)\.(?<minor>[\d]+)\.(?<patch>[\d]+)/;
