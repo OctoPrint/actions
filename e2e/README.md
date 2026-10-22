@@ -55,7 +55,7 @@ test-e2e:
   runs-on: ubuntu-latest
   strategy:
     matrix:
-      python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+      python: ["3.10", "3.11", "3.12", "3.13"]
   steps:
     - name: ⬇ Download build result
       uses: actions/download-artifact@v4
@@ -78,10 +78,10 @@ test-e2e:
 e2e:
   name: 🧪 E2E tests
   needs: build
-  runs-on: ubuntu-latest
+  runs-on: ubuntu-26.04
   strategy:
     matrix:
-      octoprint: ["master", "maintenance"]
+      octoprint: ["main", "dev"]
   steps:
     - name: ⬇ Download build result
       uses: actions/download-artifact@v4
