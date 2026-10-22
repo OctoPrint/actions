@@ -1,32 +1,32 @@
 #!/bin/bash
 set -e
 
-if [ -z ${TOKEN} ]; then
+if [ -z "${TOKEN}" ]; then
     echo "TOKEN is unset or empty. Make sure it's set to a GitHub token that can be used for updating comments."
     exit -1
 fi
-export GH_TOKEN=$TOKEN
+export GH_TOKEN="$TOKEN"
 
 # verify token
 gh auth status
 
-if [ -z ${REPO} ]; then
+if [ -z "${REPO}" ]; then
     echo "REPO is unset or empty. Make sure it's set to the target repo (format: owner/name)."
     exit -1
 fi
 
-if [ -z ${COMMENT} ] && [ -z ${ISSUE} ]; then
+if [ -z "${COMMENT}" ] && [ -z "${ISSUE}" ]; then
     echo "Both ISSUE and COMMENT are unset or empty. Make sure one is set."
     exit -1
 fi
-if [ -z ${COMMENT} ]; then
+if [ -z "${COMMENT}" ]; then
     echo "Operating on body of issue #$ISSUE"
 else
     echo "Operating on body of comment $COMMENT"
 fi
 
-if [ -z ${BODY} ]; then
-    if [ -z ${COMMENT} ]; then
+if [ -z "${BODY}" ]; then
+    if [ -z "${COMMENT}" ]; then
         BODY=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
